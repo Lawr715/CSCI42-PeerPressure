@@ -1,5 +1,8 @@
 'use client'
 import React, { useState, useEffect } from "react";
+import Form from "next/form";
+import { PomodoroForm } from "./pomodoroForm";
+//import { useSession } from "@/lib/auth-client"; 
 
 // Source: https://www.youtube.com/watch?v=GA2LdsTmW1k
 export function CountdownTimer(){
@@ -8,6 +11,9 @@ export function CountdownTimer(){
     const [focusMinutes, setFocusMinutes] = useState(0);
     const [restMinutes, setRestMinutes] = useState(0);
     const [isRunning, setIsRunning] = useState(false);
+
+    //const { data: session, isPending } = useSession();
+    //const { user } = session;
     
     useEffect(() => {
         let interval;
@@ -73,27 +79,31 @@ export function CountdownTimer(){
         setSeconds(0);
     }
 
+    
     return (
         <main>
             <div>
                 {minutes} : {seconds}
             </div>
 
+            <form action={PomodoroForm}>
+            
             <div>
                 <label>Focus Minutes</label>
-                <input value={focusMinutes} onChange={changeFocusMinutes} />
+                <input id="focusTime" name="focusTime" />
                 <label>Rest Minutes</label>
-                <input value={restMinutes} onChange={changeRestMinutes} />
+                <input id="restTime" name="restTime" />
             </div>
 
-                
-            <button onClick={startFocusTimer}> 
+            <button type="submit"> 
                 Start Focus Timer 
             </button>
 
-            <button onClick={startRestTimer}> 
+            <button type="submit"> 
                 Start Rest Timer 
             </button>
+
+            </form>
             
             <button onClick={resumeTimer}> 
                 Resume Timer 
@@ -102,7 +112,7 @@ export function CountdownTimer(){
             <button onClick={pauseTimer}> 
                 Pause Timer 
             </button>
-            
+
             <button onClick={stopTimer}> 
                 Stop Timer 
             </button>
