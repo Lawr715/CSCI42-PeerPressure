@@ -120,13 +120,6 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
-exports.Prisma.PomodoroInteractionScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt',
-  focusTime: 'focusTime',
-  restTime: 'restTime'
-};
-
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -173,6 +166,14 @@ exports.Prisma.VerificationScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.PomodoroInteractionScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  focusTime: 'focusTime',
+  restTime: 'restTime',
+  userId: 'userId'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -190,11 +191,11 @@ exports.Prisma.NullsOrder = {
 
 
 exports.Prisma.ModelName = {
-  PomodoroInteraction: 'PomodoroInteraction',
   User: 'User',
   Session: 'Session',
   Account: 'Account',
-  Verification: 'Verification'
+  Verification: 'Verification',
+  PomodoroInteraction: 'PomodoroInteraction'
 };
 
 /**

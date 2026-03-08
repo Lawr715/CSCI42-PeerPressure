@@ -13,14 +13,6 @@ datasource db {
   provider = "postgresql"
 }
 
-model PomodoroInteraction {
-  id            Int       @default(autoincrement()) @id
-  createdAt     DateTime  @default(now()) @map(name: "created_at")
-  focusTime     Int       @default(25)
-  restTime      Int       @default(5)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
 model User {
   id            String    @id
   name          String
@@ -31,6 +23,7 @@ model User {
   updatedAt     DateTime
   sessions      Session[]
   accounts      Account[]
+  pomodoros     PomodoroInteraction[]
 
   @@map("user")
 }
@@ -77,4 +70,13 @@ model Verification {
   updatedAt  DateTime?
 
   @@map("verification")
+}
+
+model PomodoroInteraction {
+  id            Int       @default(autoincrement()) @id
+  createdAt     DateTime  @default(now()) @map(name: "created_at")
+  focusTime     Int       @default(25)
+  restTime      Int       @default(5)
+  userId        String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
