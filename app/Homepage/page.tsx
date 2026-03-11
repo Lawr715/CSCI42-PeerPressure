@@ -5,7 +5,7 @@ import { useSession, signOut } from "@/lib/auth-client";
 import { useEffect } from "react";
 
 export default function HomePage() {
- /* const router = useRouter();
+ const router = useRouter();
   const { data: session, isPending } = useSession();
 
   useEffect(() => {
@@ -20,13 +20,13 @@ export default function HomePage() {
   if (!session?.user)
     return <p className="text-center mt-8 text-white">Redirecting...</p>;
 
-  const { user } = session;*/
+  const { user } = session;
 
-  //Yo, {user.name || "User"}
+  
   return (
     <main className="max-w-md h-screen flex items-center justify-center flex-col mx-auto p-6 space-y-6 text-white">
       <div className="w-full bg-[#CE2632] p-4 rounded-md text-center">
-      <h1 className="text-3xl font-bold text-center text-[#E9DABB]"> Yo, {"User"} </h1>
+      <h1 className="text-3xl font-bold text-center text-[#E9DABB]"> Yo, {user.name || "User"} </h1>
       <h2 className="text-xl text-center  text-[#E9DABB]">Ready to Work?</h2>
       </div>
       {/* Placeholder for upcoming task */}

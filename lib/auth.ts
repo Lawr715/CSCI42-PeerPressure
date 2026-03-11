@@ -14,5 +14,20 @@ export const auth = betterAuth({
     }),
     emailAndPassword: { 
         enabled: true 
+    },
+    // --- ADDED GOOGLE PROVIDER BELOW ---
+    socialProviders: {
+        google: {
+            clientId: process.env.GOOGLE_CLIENT_ID!,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+            scope: [
+                "openid",
+                "profile",
+                "email",
+                "https://www.googleapis.com/auth/calendar.readonly" 
+            ],
+            accessType: "offline", 
+        }
     }
+
 });
