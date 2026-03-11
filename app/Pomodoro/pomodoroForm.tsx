@@ -3,7 +3,7 @@ import Form from "next/form";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
-export async function PomodoroForm(formData: FormData){
+export async function PomodoroForm( userId: string, formData: FormData ){
 
     try {
         "use server";
@@ -13,7 +13,7 @@ export async function PomodoroForm(formData: FormData){
         data: {
             focusTime,
             restTime,
-            userId: "keuUoY5q7sHT355pLyXSUIo541kKvV6R",
+            userId: userId,
         },
         });
         

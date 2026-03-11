@@ -2,7 +2,9 @@
 import React, { useState, useEffect } from "react";
 import Form from "next/form";
 import { PomodoroForm } from "./pomodoroForm";
-//import { useSession } from "@/lib/auth-client"; 
+
+import { useRouter } from "next/navigation"; 
+import { useSession, signOut } from "@/lib/auth-client"; 
 
 // Source: https://www.youtube.com/watch?v=GA2LdsTmW1k
 export function CountdownTimer(){
@@ -12,8 +14,13 @@ export function CountdownTimer(){
     const [restMinutes, setRestMinutes] = useState(0);
     const [isRunning, setIsRunning] = useState(false);
 
-    //const { data: session, isPending } = useSession();
-    //const { user } = session;
+    const router = useRouter(); 
+    const { data: session, isPending } = useSession(); 
+    useEffect(() => {
+        if (!isPending && !session?.user) {
+            router.push("/Login"); 
+        } 
+    }, [isPending, session, router]); 
     
     useEffect(() => {
         let interval;
@@ -30,6 +37,13 @@ export function CountdownTimer(){
         return () => clearInterval(interval);
     }, [seconds, minutes, isRunning]);
     
+    if (isPending)
+        return <p className="text-center mt-8 text-white">Loading...</p>;
+
+    if (!session?.user){
+        return <p> Redirecting </p>
+    } 
+    const { user } = session;
 
     const changeFocusMinutes=(e)=>{
         setFocusMinutes(e.target.value)
@@ -78,15 +92,18 @@ export function CountdownTimer(){
         setMinutes(focusMinutes);
         setSeconds(0);
     }
-
+    
+    const submitFormWithUserID = PomodoroForm.bind(null, user.id)
     
     return (
         <main>
+            <h1>Welcome, {user.name || "User"}!</h1>
+            <p>Your ID is: {user.id} </p>
             <div>
                 {minutes} : {seconds}
             </div>
 
-            <form action={PomodoroForm}>
+            <form action={submitFormWithUserID}>
             
             <div>
                 <label>Focus Minutes</label>
@@ -96,15 +113,19 @@ export function CountdownTimer(){
             </div>
 
             <button type="submit"> 
-                Start Focus Timer 
-            </button>
-
-            <button type="submit"> 
-                Start Rest Timer 
+                Save Settings 
             </button>
 
             </form>
             
+            <button onClick={startFocusTimer}> 
+                Start Focus Timer 
+            </button>
+
+            <button onClick={startRestTimer}> 
+                Start Rest Timer 
+            </button>
+
             <button onClick={resumeTimer}> 
                 Resume Timer 
             </button>
