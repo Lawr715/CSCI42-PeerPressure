@@ -19,6 +19,7 @@ model PomodoroInteraction {
   restTime      Int       @default(5)
   userId        String?   // Added relation to user
   user          User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {

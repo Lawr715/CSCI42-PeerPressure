@@ -1,7 +1,9 @@
 "use client";
 import { useRouter } from "next/navigation";
+
 export default function Home() {
   const router = useRouter();
+  
   return (
     <main className="flex items-center justify-center h-screen bg-neutral-950 text-white">
       <div className="flex gap-4">
@@ -19,6 +21,7 @@ export default function Home() {
         </button>
       </div>
       <div>Hello World</div>
+      
     </main>
   );
 }
