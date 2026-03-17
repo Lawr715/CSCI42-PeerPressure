@@ -46,13 +46,3 @@ next-env.d.ts
 # documents
 *.pdf
 *.txt
-
-# prisma generated client (auto-generated, never push)
-prisma/generated/
-
-# local database files
-*.db
-*.db-journal
-
-# seed script (local testing only)
-prisma/seed.ts

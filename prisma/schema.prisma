@@ -172,4 +172,63 @@ model MeetingAvailability {
   status              String    @default("Free") // "Free" or "Busy"
 
   @@unique([scheduleId, userId, date, timeSlot])
+enum TaskStatus {
+  BACKLOG
+  IN_PROGRESS
+  FOR_REVIEW
+  DONE
+}
+
+enum InteractionType {
+  CREATE
+  EDIT
+  COMPLETE
+}
+
+model Task {
+  id              Int        @id @default(autoincrement())
+  taskName        String     @default("To Do")
+  taskDescription String?
+
+  status          TaskStatus @default(BACKLOG)
+
+  softDeadline    DateTime?
+  hardDeadline    DateTime   @default(dbgenerated("NOW() + interval '7 days'"))
+
+  relevantFiles   String?    // file path or URL
+
+  repetition      Int        @default(1)
+
+  // Self relations
+  parentTaskId    Int?
+  parentTask      Task?      @relation("Subtasks", fields: [parentTaskId], references: [id])
+  subtasks        Task[]     @relation("Subtasks")
+
+  dependencyId    Int?
+  dependency      Task?      @relation("Dependencies", fields: [dependencyId], references: [id])
+  dependents      Task[]     @relation("Dependencies")
+
+  // Relations
+  assignedUsers   User[]     @relation("AssignedTasks")
+
+  categoryId      Int?
+  category        Category?  @relation(fields: [categoryId], references: [id])
+
+  interactions    TaskInteraction[]
+
+  createdAt       DateTime   @default(now())
+}
+
+model TaskInteraction {
+  id              Int              @id @default(autoincrement())
+
+  timestamp       DateTime         @default(now())
+
+  interactionType InteractionType  @default(CREATE)
+
+  userId          Int
+  user            User             @relation(fields: [userId], references: [id])
+
+  taskId          Int
+  task            Task             @relation(fields: [taskId], references: [id])
 }
