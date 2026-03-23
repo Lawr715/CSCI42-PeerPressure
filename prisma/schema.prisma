@@ -6,6 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  output   = "./generated/client"
 }
 
 datasource db {
@@ -19,7 +20,6 @@ model PomodoroInteraction {
   restTime      Int       @default(5)
   userId        String?   // Added relation to user
   user          User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
@@ -37,7 +37,7 @@ model User {
   loginStreak   Int       @default(0)
 
   // Relations
-  tasks         Task[]    @relation("TaskAssignee")
+  tasks         Task[]    @relation("AssignedTasks")
   interactions  TaskInteraction[]
   meetingsCreated MeetingSchedule[] @relation("MeetingOrganizer")
   meetingAvails MeetingAvailability[]
@@ -94,52 +94,69 @@ model Verification {
 // NEW MODELS ADDED FROM DELIVERABLE 3 DATA DICTIONARY
 // =========================================
 
+enum TaskStatus {
+  BACKLOG
+  IN_PROGRESS
+  FOR_REVIEW
+  DONE
+}
+
+enum InteractionType {
+  CREATE
+  EDIT
+  COMPLETE
+}
+
 model Category {
-  id            Int     @id @default(autoincrement())
-  categoryName  String  @default("No Category")
+  id            Int       @id @default(autoincrement())
+  categoryName  String    @default("No Category")
   tasks         Task[]
 }
 
 model Task {
-  id              Int       @id @default(autoincrement())
-  taskName        String    @default("To Do")
+  id              Int         @id @default(autoincrement())
+  taskName        String      @default("To Do")
   taskDescription String?
-  status          String    @default("Backlog") // "Backlog", "In Progress", "For Review", "Done"
+  
+  status          TaskStatus  @default(BACKLOG)
+  
   softDeadline    DateTime?
-  hardDeadline    DateTime  @default(dbgenerated("NOW() + interval '1 week'"))
-  repetition      Int       @default(1) // 0: no repeat, 1: daily, 7: weekly
+  hardDeadline    DateTime    @default(dbgenerated("NOW() + interval '1 week'"))
+  
+  repetition      Int         @default(1) // 0: no repeat, 1: daily, 7: weekly
+  relevantFiles   String?     // file path or URL
+  createdAt       DateTime    @default(now())
   
   // Relations
   categoryId      Int?
-  category        Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  category        Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   
-  assignedToId    String?
-  assignedTo      User?     @relation("TaskAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  assignedUsers   User[]      @relation("AssignedTasks")
 
   // Subtasks
-  parentId        Int?
-  parentTask      Task?     @relation("Subtasks", fields: [parentId], references: [id], onDelete: Cascade)
-  subtasks        Task[]    @relation("Subtasks")
+  parentTaskId    Int?
+  parentTask      Task?       @relation("Subtasks", fields: [parentTaskId], references: [id], onDelete: Cascade)
+  subtasks        Task[]      @relation("Subtasks")
 
   // Dependencies (Self Relation)
   dependencyId    Int?
-  dependsOn       Task?     @relation("Dependencies", fields: [dependencyId], references: [id], onDelete: SetNull)
-  dependentTasks  Task[]    @relation("Dependencies")
+  dependency      Task?       @relation("Dependencies", fields: [dependencyId], references: [id], onDelete: SetNull)
+  dependents      Task[]      @relation("Dependencies")
 
   meetings        MeetingSchedule[]
   interactions    TaskInteraction[]
 }
 
 model TaskInteraction {
-  id              Int       @id @default(autoincrement())
-  timestamp       DateTime  @default(now())
-  interactionType String    @default("Create") // Create, Edit, Complete
+  id              Int             @id @default(autoincrement())
+  timestamp       DateTime        @default(now())
+  interactionType InteractionType @default(CREATE)
   
   taskId          Int
-  task            Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  task            Task            @relation(fields: [taskId], references: [id], onDelete: Cascade)
   
   userId          String
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model MeetingSchedule {
@@ -173,63 +190,4 @@ model MeetingAvailability {
   status              String    @default("Free") // "Free" or "Busy"
 
   @@unique([scheduleId, userId, date, timeSlot])
-enum TaskStatus {
-  BACKLOG
-  IN_PROGRESS
-  FOR_REVIEW
-  DONE
-}
-
-enum InteractionType {
-  CREATE
-  EDIT
-  COMPLETE
-}
-
-model Task {
-  id              Int        @id @default(autoincrement())
-  taskName        String     @default("To Do")
-  taskDescription String?
-
-  status          TaskStatus @default(BACKLOG)
-
-  softDeadline    DateTime?
-  hardDeadline    DateTime   @default(dbgenerated("NOW() + interval '7 days'"))
-
-  relevantFiles   String?    // file path or URL
-
-  repetition      Int        @default(1)
-
-  // Self relations
-  parentTaskId    Int?
-  parentTask      Task?      @relation("Subtasks", fields: [parentTaskId], references: [id])
-  subtasks        Task[]     @relation("Subtasks")
-
-  dependencyId    Int?
-  dependency      Task?      @relation("Dependencies", fields: [dependencyId], references: [id])
-  dependents      Task[]     @relation("Dependencies")
-
-  // Relations
-  assignedUsers   User[]     @relation("AssignedTasks")
-
-  categoryId      Int?
-  category        Category?  @relation(fields: [categoryId], references: [id])
-
-  interactions    TaskInteraction[]
-
-  createdAt       DateTime   @default(now())
-}
-
-model TaskInteraction {
-  id              Int              @id @default(autoincrement())
-
-  timestamp       DateTime         @default(now())
-
-  interactionType InteractionType  @default(CREATE)
-
-  userId          Int
-  user            User             @relation(fields: [userId], references: [id])
-
-  taskId          Int
-  task            Task             @relation(fields: [taskId], references: [id])
 }

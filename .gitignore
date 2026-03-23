@@ -46,7 +46,10 @@ next-env.d.ts
 # documents
 *.pdf
 *.txt
-*.ts
+
+# database
 *.db
-*.db
-*.ts
+*.sqlite
+
+# prisma
+prisma/generated/client/
