@@ -13,6 +13,15 @@ datasource db {
   provider = "postgresql"
 }
 
+model PomodoroInteraction {
+  id            Int       @default(autoincrement()) @id
+  createdAt     DateTime  @default(now()) @map(name: "created_at")
+  focusTime     Int       @default(25)
+  restTime      Int       @default(5)
+  userId        String?   // Added relation to user
+  user          User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
 model User {
   id            String    @id
   name          String
@@ -23,6 +32,15 @@ model User {
   updatedAt     DateTime
   sessions      Session[]
   accounts      Account[]
+
+  // New fields from Data Dictionary
+  loginStreak   Int       @default(0)
+
+  // Relations
+  tasks         Task[]    @relation("AssignedTasks")
+  interactions  TaskInteraction[]
+  meetingsCreated MeetingSchedule[] @relation("MeetingOrganizer")
+  meetingAvails MeetingAvailability[]
   pomodoros     PomodoroInteraction[]
 
   @@map("user")
@@ -72,11 +90,104 @@ model Verification {
   @@map("verification")
 }
 
-model PomodoroInteraction {
-  id            Int       @default(autoincrement()) @id
-  createdAt     DateTime  @default(now()) @map(name: "created_at")
-  focusTime     Int       @default(25)
-  restTime      Int       @default(5)
-  userId        String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+// =========================================
+// NEW MODELS ADDED FROM DELIVERABLE 3 DATA DICTIONARY
+// =========================================
+
+enum TaskStatus {
+  BACKLOG
+  IN_PROGRESS
+  FOR_REVIEW
+  DONE
+}
+
+enum InteractionType {
+  CREATE
+  EDIT
+  COMPLETE
+}
+
+model Category {
+  id            Int       @id @default(autoincrement())
+  categoryName  String    @default("No Category")
+  tasks         Task[]
+}
+
+model Task {
+  id              Int         @id @default(autoincrement())
+  taskName        String      @default("To Do")
+  taskDescription String?
+  
+  status          TaskStatus  @default(BACKLOG)
+  
+  softDeadline    DateTime?
+  hardDeadline    DateTime    @default(dbgenerated("NOW() + interval '1 week'"))
+  
+  repetition      Int         @default(1) // 0: no repeat, 1: daily, 7: weekly
+  relevantFiles   String?     // file path or URL
+  createdAt       DateTime    @default(now())
+  
+  // Relations
+  categoryId      Int?
+  category        Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  
+  assignedUsers   User[]      @relation("AssignedTasks")
+
+  // Subtasks
+  parentTaskId    Int?
+  parentTask      Task?       @relation("Subtasks", fields: [parentTaskId], references: [id], onDelete: Cascade)
+  subtasks        Task[]      @relation("Subtasks")
+
+  // Dependencies (Self Relation)
+  dependencyId    Int?
+  dependency      Task?       @relation("Dependencies", fields: [dependencyId], references: [id], onDelete: SetNull)
+  dependents      Task[]      @relation("Dependencies")
+
+  meetings        MeetingSchedule[]
+  interactions    TaskInteraction[]
+}
+
+model TaskInteraction {
+  id              Int             @id @default(autoincrement())
+  timestamp       DateTime        @default(now())
+  interactionType InteractionType @default(CREATE)
+  
+  taskId          Int
+  task            Task            @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  
+  userId          String
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model MeetingSchedule {
+  id                  Int       @id @default(autoincrement())
+  meetingName         String    @default("Meeting")
+  meetingDescription  String?
+  startDate           DateTime  @default(now())    @db.Date
+  endDate             DateTime                     @db.Date
+  startTime           String    @default("09:00:00") // Time only
+  endTime             String    @default("17:00:00") // Time only
+  
+  taskId              Int?
+  task                Task?     @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  
+  startedById         String
+  startedBy           User      @relation("MeetingOrganizer", fields: [startedById], references: [id], onDelete: Cascade)
+
+  availabilities      MeetingAvailability[]
+}
+
+model MeetingAvailability {
+  id                  Int       @id @default(autoincrement())
+  scheduleId          Int
+  schedule            MeetingSchedule  @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  
+  userId              String
+  user                User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  date                DateTime  @db.Date
+  timeSlot            String    // Represented as 'HH:mm' for 30-min intervals
+  status              String    @default("Free") // "Free" or "Busy"
+
+  @@unique([scheduleId, userId, date, timeSlot])
 }
