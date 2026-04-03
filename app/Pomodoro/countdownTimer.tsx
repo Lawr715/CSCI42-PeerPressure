@@ -19,6 +19,14 @@ export function CountdownTimer(){
     const currentSeconds = (minutes * 60) + seconds;
     const progressPercent = isRunning ? ((totalSeconds - currentSeconds) / totalSeconds) * 100 : 0;
     
+    const router = useRouter(); 
+    const { data: session, isPending } = useSession(); 
+    useEffect(() => {
+        if (!isPending && !session?.user) {
+            router.push("/Login"); 
+        } 
+    }, [isPending, session, router]); 
+
     useEffect(() => {
         let interval: NodeJS.Timeout;
         if (isRunning){
@@ -37,6 +45,12 @@ export function CountdownTimer(){
         return () => clearInterval(interval);
     }, [seconds, minutes, isRunning]);
     
+    if (isPending)
+        return <p className="text-center mt-8 text-white">Loading...</p>;
+    if (!session?.user){
+        return <p> Redirecting </p>
+    } 
+    const { user } = session;
 
     const startTimer = (newMode: 'focus' | 'rest') => {
         setMode(newMode);
@@ -56,6 +70,7 @@ export function CountdownTimer(){
     };
 
     const formatTime = (time: number) => time < 10 ? `0${time}` : time;
+    const submitFormWithUserID = PomodoroForm.bind(null, user.id)
 
     return (
         <div className="flex flex-col items-center justify-center p-8 bg-[#E9DABB] min-h-[80vh] rounded-3xl shadow-inner max-w-4xl mx-auto border-8 border-white">
@@ -143,6 +158,21 @@ export function CountdownTimer(){
                         <span className="w-10 text-center font-bold text-xl text-gray-800">{focusMinutes}</span>
                         <button onClick={() => setFocusMinutes(focusMinutes + 5)} className="text-[#780000] hover:text-[#5c0000] font-black text-xl">+</button>
                     </div>
+                </div>
+                
+                <div className="flex flex-col items-center gap-3">
+                    <button 
+                  onClick={() => { setMode('focus'); setIsRunning(false); setMinutes(focusMinutes); setSeconds(0); }}
+                  className={`px-4 py-3 rounded-full font-bold transition-all ${mode === 'focus' ? 'bg-[#780000] text-[#E9DABB] shadow-md' : 'text-[#780000] hover:bg-white/60'}`}
+                >
+                    Save Settings
+                </button>
+                <button 
+                  onClick={() => { setMode('focus'); setIsRunning(false); setMinutes(focusMinutes); setSeconds(0); }}
+                  className={`px-4 py-3 rounded-full font-bold transition-all ${mode === 'focus' ? 'bg-[#780000] text-[#E9DABB] shadow-md' : 'text-[#780000] hover:bg-white/60'}`}
+                >
+                    Load Settings
+                </button>
                 </div>
 
                 <div className="flex flex-col items-center gap-3">
