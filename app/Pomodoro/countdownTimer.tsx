@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect } from "react";
 import Form from "next/form";
-import { PomodoroForm } from "./pomodoroForm";
+import { PomodoroForm, PomodoroSettings } from "./pomodoroForm";
 
 import { useRouter } from "next/navigation"; 
 import { useSession, signOut } from "@/lib/auth-client"; 
@@ -72,7 +72,13 @@ export function CountdownTimer(){
     const formatTime = (time: number) => time < 10 ? `0${time}` : time;
     const submitFormWithUserID = PomodoroForm.bind(null, user.id, focusMinutes, restMinutes)
 
-    
+    function getTimerSettings(){
+        const getTimerSettings = PomodoroSettings(user.id).then((data) => {
+                setFocusMinutes(data[0].focusTime)
+                setRestMinutes(data[0].restTime)
+            }
+        )
+    }
 
     return (
         <div className="flex flex-col items-center justify-center p-8 bg-[#E9DABB] min-h-[80vh] rounded-3xl shadow-inner max-w-4xl mx-auto border-8 border-white">
@@ -173,7 +179,7 @@ export function CountdownTimer(){
                 </form>
 
                 <button 
-                  onClick={() => { setMode('focus'); setIsRunning(false); setMinutes(focusMinutes); setSeconds(0); }}
+                  onClick={getTimerSettings}
                   className={`px-4 py-3 rounded-full font-bold transition-all ${mode === 'focus' ? 'bg-[#780000] text-[#E9DABB] shadow-md' : 'text-[#780000] hover:bg-white/60'}`}
                 >
                     Load Settings

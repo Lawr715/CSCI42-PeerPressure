@@ -16,8 +16,6 @@ export async function PomodoroForm( userId: string, focusTime: number, restTime:
             userId: userId,
         },
         });
-        
-        console.log("Success! Data saved:", result);
         revalidatePath("/Pomodoro")
     } catch (error: any){
         console.error("Prisma Error:", error.message);
@@ -25,4 +23,13 @@ export async function PomodoroForm( userId: string, focusTime: number, restTime:
     }
 
     
+}
+
+export async function PomodoroSettings( userId: string ){
+    const settings = await prisma.pomodoroInteraction.findMany({
+        take: 1,
+        orderBy: [{createdAt: "desc",},],
+        where: { userId: userId },
+    });
+    return settings
 }
