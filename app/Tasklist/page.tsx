@@ -42,6 +42,7 @@ function Main() {
                 <button className="m-2 p-2 rounded-lg text-[#E9DABB] bg-[#CA615E]">Calendar View</button>
             </div>
             <div>
+                <a href="/TaskList/NewTask" className="m-2 p-2 rounded-lg text-[#E9DABB] bg-[#CA615E]">Add Task</a>
                 <button className="m-2 py-2 px-6 rounded-lg text-black bg-gray-400 font-bold">Filter</button>
             </div>
             </div>
