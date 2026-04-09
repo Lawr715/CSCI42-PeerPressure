@@ -1,4 +1,6 @@
+"use client";
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 // Define the Status Enum based on your Prisma Schema
 enum TaskStatus {
@@ -18,6 +20,8 @@ interface TaskFormData {
 }
 
 const CreateTaskForm = () => {
+  const router = useRouter();
+
   const [formData, setFormData] = useState<TaskFormData>({
     taskName: '',
     taskDescription: '',
@@ -30,8 +34,6 @@ const CreateTaskForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Here you would call your API route (e.g., /api/tasks) 
-    // and pass the formData to Prisma via a Server Action or API handler
     console.log("Submitting Task:", formData);
     
     try {
@@ -43,6 +45,8 @@ const CreateTaskForm = () => {
 
       if (response.ok) {
         alert("Task created successfully!");
+        router.push('/Tasklist');
+        router.refresh();
       }
     } catch (error) {
       console.error("Failed to create task", error);

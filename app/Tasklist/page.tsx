@@ -74,7 +74,7 @@ export default function TaskList() {
               Filter
             </button>
             <Link
-              href="/tasks/create"
+              href="/Tasklist/Create"
               className="bg-[#780000] text-[#E9DABB] font-bold rounded-xl px-5 py-2.5 hover:bg-[#5c0000] transition-colors shadow-md text-sm"
             >
               + New Task
