@@ -56,6 +56,9 @@ export async function GET() {
           id: userId,
         },
       },
+      status: {
+        not: 'DONE',
+      },
     },
     include: {
       category: true,

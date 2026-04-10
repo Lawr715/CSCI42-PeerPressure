@@ -49,6 +49,8 @@ export default function TaskList() {
   const [view, setView] = useState<ViewMode>('list');
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null); // State for the popup
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     async function fetchTasks() {
@@ -64,6 +66,27 @@ export default function TaskList() {
     }
     fetchTasks();
   }, []);
+
+  const updateTaskStatus = async (taskId: number, newStatus: string) => {
+    setIsUpdating(true);
+    try {
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (response.ok) {
+        // Update local state so the UI reflects the change immediately
+        setTasks(tasks.map(t => t.id === taskId ? { ...t, status: newStatus as any } : t));
+        setSelectedTask(prev => prev ? { ...prev, status: newStatus as any } : null);
+      }
+    } catch (error) {
+      console.error("Failed to update status", error);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return "No Date";
@@ -123,21 +146,15 @@ export default function TaskList() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {isLoading ? (
-                    <tr>
-                      <td colSpan={4} className="p-12 text-center text-gray-400 animate-pulse font-bold uppercase text-xs tracking-widest">Loading...</td>
-                    </tr>
-                  ) : tasks.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="p-20 text-center text-gray-400 italic font-medium">
-                        No Tasks Found.
-                      </td>
-                    </tr>
-                  ) : (
-                    tasks.map((task) => (
-                      <tr key={task.id} className="hover:bg-gray-50/50 transition-colors">
-                        <td className="p-4 font-bold text-gray-800">{task.taskName}</td>
-                        <td className="p-4"><StatusBadge status={task.status} /></td>
+                {tasks.map((task) => (
+                  <tr key={task.id} className="hover:bg-gray-50/50 transition-colors">
+                    <td 
+                      className="p-4 font-bold text-[#780000] cursor-pointer hover:underline"
+                      onClick={() => setSelectedTask(task)} // Trigger popup
+                    >
+                      {task.taskName}
+                    </td>
+                    <td className="p-4"><StatusBadge status={task.status} /></td>
                         <td className="p-4 text-sm text-gray-500 font-semibold">{formatDate(task.softDeadline)}</td>
                         <td className="p-4 text-sm text-[#780000] font-black">{formatDate(task.hardDeadline)}</td>
                         <td className="p-4 text-xs font-bold">
@@ -145,9 +162,8 @@ export default function TaskList() {
                             {task.category?.categoryName || "No Tags"}
                           </span>
                         </td>
-                      </tr>
-                    ))
-                  )}
+                  </tr>
+                ))}
                 </tbody>
               </table>
             </div>
@@ -184,6 +200,72 @@ export default function TaskList() {
               ))}
             </div>
           )}
+
+        {/* --- THE POPUP MODAL --- */}
+        {selectedTask && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl animate-in fade-in zoom-in duration-200">
+              <div className="flex justify-between items-start mb-4">
+                <h2 className="text-2xl font-black text-[#780000]">{selectedTask.taskName}</h2>
+                <button 
+                  onClick={() => setSelectedTask(null)}
+                  className="text-gray-400 hover:text-gray-600 font-bold"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-xs font-black uppercase text-gray-400 tracking-widest mb-1">Description</h4>
+                  <p className="text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    {selectedTask.taskDescription || "No description provided."}
+                    {/* unsure why taskDescription is being marked as unrecognized in my local device when it loads just fine*/}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="text-xs font-black uppercase text-gray-400 tracking-widest mb-1">Category</h4>
+                    <p className="text-sm font-bold text-gray-800">{selectedTask.category?.categoryName || "Uncategorized"}</p>
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-black uppercase text-gray-400 tracking-widest mb-1">Due Date</h4>
+                    <p className="text-sm font-bold text-[#780000]">{formatDate(selectedTask.hardDeadline)}</p>
+                  </div>
+                </div>
+
+                <hr className="border-gray-100" />
+
+                <div>
+                  <h4 className="text-xs font-black uppercase text-gray-400 tracking-widest mb-3">Update Status</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {['BACKLOG', 'IN_PROGRESS', 'FOR_REVIEW', 'DONE'].map((s) => (
+                      <button
+                        key={s}
+                        disabled={isUpdating}
+                        onClick={() => updateTaskStatus(selectedTask.id, s)}
+                        className={`px-3 py-1.5 rounded-md text-[10px] font-black uppercase transition-all border
+                          ${selectedTask.status === s 
+                            ? 'bg-[#780000] text-white border-[#780000]' 
+                            : 'bg-white text-gray-400 border-gray-200 hover:border-gray-400'}`}
+                      >
+                        {s.replace('_', ' ')}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <button 
+                onClick={() => setSelectedTask(null)}
+                className="mt-8 w-full py-3 bg-gray-100 text-gray-600 font-bold rounded-xl hover:bg-gray-200 transition-colors"
+              >
+                Close Details
+              </button>
+            </div>
+          </div>
+        )}
         </div>
       </div>
     </>
