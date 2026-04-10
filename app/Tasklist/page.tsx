@@ -13,6 +13,7 @@ interface Task {
   softDeadline: string | null;
   hardDeadline: string;
   repetition: number;
+  category?: { categoryName: string };
 }
 
 // Progress Bar helper specifically for Kanban visualization
@@ -118,6 +119,7 @@ export default function TaskList() {
                     <th className="text-left p-4 font-bold text-xs uppercase tracking-widest">Status</th>
                     <th className="text-left p-4 font-bold text-xs uppercase tracking-widest">Soft Deadline</th>
                     <th className="text-left p-4 font-bold text-xs uppercase tracking-widest">Hard Deadline</th>
+                    <th className="text-left p-4 font-bold text-xs uppercase tracking-widest">Category</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -138,6 +140,11 @@ export default function TaskList() {
                         <td className="p-4"><StatusBadge status={task.status} /></td>
                         <td className="p-4 text-sm text-gray-500 font-semibold">{formatDate(task.softDeadline)}</td>
                         <td className="p-4 text-sm text-[#780000] font-black">{formatDate(task.hardDeadline)}</td>
+                        <td className="p-4 text-xs font-bold">
+                          <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded">
+                            {task.category?.categoryName || "No Tags"}
+                          </span>
+                        </td>
                       </tr>
                     ))
                   )}

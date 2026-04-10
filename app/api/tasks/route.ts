@@ -23,6 +23,7 @@ export async function POST(request: Request) {
         softDeadline: softDeadline ? new Date(softDeadline) : null,
         hardDeadline: new Date(hardDeadline),
         repetition: Number(repetition),
+        categoryId: body.categoryId ? Number(body.categoryId): null, 
         assignedUsers: {
           connect: { id: session.user.id }
         }
@@ -38,7 +39,6 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
-    // 1. Get the session from Better Auth
     const session = await auth.api.getSession({
       headers: await headers()
     });
@@ -56,6 +56,9 @@ export async function GET() {
           id: userId,
         },
       },
+    },
+    include: {
+      category: true,
     },
     orderBy: {
       createdAt: "desc",

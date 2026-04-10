@@ -1,6 +1,7 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from "next/link";
 
 // Define the Status Enum based on your Prisma Schema
 enum TaskStatus {
@@ -21,6 +22,11 @@ interface TaskFormData {
 
 const CreateTaskForm = () => {
   const router = useRouter();
+
+  const [categories, setCategories] = useState<{id: number, categoryName: string}[]>([]);
+    useEffect(() => {
+    fetch('/api/categories').then(res => res.json()).then(setCategories);
+  }, []);
 
   const [formData, setFormData] = useState<TaskFormData>({
     taskName: '',
@@ -143,6 +149,22 @@ const CreateTaskForm = () => {
               value={formData.hardDeadline}
               onChange={handleChange}
             />
+          </div>
+            
+            {/* Category/Tags */}
+          <div>
+          <label className="block text-sm font-medium text-gray-700">Category</label>
+          <select
+            name="categoryId"
+            className="mt-1 block w-full rounded-md border-gray-300 p-2 border"
+            onChange={handleChange}
+          >
+            <option value="">No Category</option>
+            {categories.map(cat => (
+              <option key={cat.id} value={cat.id}>{cat.categoryName}</option>
+            ))}
+          </select>
+          <Link href="/categories/create" className="text-xs text-blue-600 hover:underline">+ Create New Category</Link>
           </div>
         </div>
 
