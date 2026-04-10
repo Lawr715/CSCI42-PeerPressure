@@ -72,13 +72,28 @@ export function CountdownTimer(){
     const formatTime = (time: number) => time < 10 ? `0${time}` : time;
     const submitFormWithUserID = PomodoroForm.bind(null, user.id, focusMinutes, restMinutes)
 
-    function getTimerSettings(){
-        const getTimerSettings = PomodoroSettings(user.id).then((data) => {
-                setFocusMinutes(data[0].focusTime)
-                setRestMinutes(data[0].restTime)
+    const loadSettings = async () => {
+        try {
+            const data = await PomodoroSettings(user.id);
+            if (data && data.length > 0) {
+                setFocusMinutes(data[0].focusTime);
+                setRestMinutes(data[0].restTime);
+                
+                // If the timer isn't running, update the current display too
+                if (!isRunning) {
+                  setMinutes(mode === 'focus' ? data[0].focusTime : data[0].restTime);
+                  setSeconds(0);
+                }
             }
-        )
-    }
+        } catch (error) {
+            console.error("Failed to load Pomodoro settings:", error);
+        }
+    };
+
+    // Auto-load settings on mount
+    useEffect(() => {
+        loadSettings();
+    }, [user.id]);
 
     return (
         <div className="flex flex-col items-center justify-center p-8 bg-[#E9DABB] min-h-[80vh] rounded-3xl shadow-inner max-w-4xl mx-auto border-8 border-white">
@@ -179,7 +194,7 @@ export function CountdownTimer(){
                 </form>
 
                 <button 
-                  onClick={getTimerSettings}
+                  onClick={loadSettings}
                   className={`px-4 py-3 rounded-full font-bold transition-all ${mode === 'focus' ? 'bg-[#780000] text-[#E9DABB] shadow-md' : 'text-[#780000] hover:bg-white/60'}`}
                 >
                     Load Settings
