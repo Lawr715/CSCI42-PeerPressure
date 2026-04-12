@@ -64,7 +64,7 @@ export async function GET() {
       category: true,
     },
     orderBy: {
-      createdAt: "desc",
+      hardDeadline: "asc",
     },
   });
 

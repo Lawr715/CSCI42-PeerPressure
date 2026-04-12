@@ -28,7 +28,7 @@ export default function CreateCategory() {
           <label className="block text-sm font-bold text-gray-700 mb-1">Category Name</label>
           <input
             type="text"
-            className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-[#780000] outline-none"
+            className="text-gray-800 w-full p-2 border rounded-lg focus:ring-2 focus:ring-[#780000] outline-none"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g., Work, Personal, School"

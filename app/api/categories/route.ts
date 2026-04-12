@@ -20,6 +20,10 @@ export async function POST(request: Request) {
 }
 
 export async function GET() {
-  const categories = await prisma.category.findMany();
+  const categories = await prisma.category.findMany({
+    orderBy: {
+      categoryName: 'asc',
+    },
+  });
   return NextResponse.json(categories);
 }
