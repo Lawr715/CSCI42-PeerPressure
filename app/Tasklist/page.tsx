@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/navbar";
 
+
 type ViewMode = 'list' | 'kanban';
 
 interface Task {
@@ -51,21 +52,42 @@ export default function TaskList() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null); // State for the popup
   const [isUpdating, setIsUpdating] = useState(false);
+  
 
   useEffect(() => {
-    async function fetchTasks() {
-      try {
-        const response = await fetch('/api/tasks');
-        const data = await response.json();
-        if (Array.isArray(data)) setTasks(data);
-      } catch (error) {
-        console.error("Failed to fetch tasks:", error);
-      } finally {
-        setIsLoading(false);
-      }
+  async function fetchTasks() {
+    try {
+      const taskRes = await fetch('/api/tasks');
+      const dbTasks = await taskRes.json();
+
+      // 2. Fetch Google Calendar events
+      const calRes = await fetch('/api/calendar');
+      const googleEvents = await calRes.json();
+      const googleTasks = googleEvents.map((event: any) => ({
+        id: `g-${event.id}`, // avoid ID conflicts
+        taskName: event.title,
+        taskDescription: "Google Calendar Event",
+        status: "BACKLOG",
+        softDeadline: null,
+        hardDeadline: event.start,
+        repetition: 0,
+        category: { categoryName: "Google Calendar" }
+      }));
+      //Merge 
+      setTasks([
+        ...dbTasks,
+        ...googleTasks
+      ]);
+
+    } catch (error) {
+      console.error("Failed to fetch tasks:", error);
+    } finally {
+      setIsLoading(false);
     }
-    fetchTasks();
-  }, []);
+  }
+
+  fetchTasks();
+}, []);
 
   const updateTaskStatus = async (taskId: number, newStatus: string) => {
     setIsUpdating(true);

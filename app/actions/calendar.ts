@@ -24,7 +24,7 @@ export async function getCalendarEvents() {
 
     let googleEvents: any[] = [];
 
-    if (!account || !account.accessToken) {
+    if (!account?.accessToken) {
         throw new Error("Google account not connected or token missing");
     }
 
@@ -53,7 +53,18 @@ export async function getCalendarEvents() {
         const data = await response.json();
         
         // Return only the necessary data to the client
-        return data.items.map((event: any) => {
+        return (data.items || [])
+      // 1. filter out birthdays + empty events
+      .filter((event: any) => {
+        const title = (event.summary || "").toLowerCase();
+
+        // remove birthday + contacts calendar noise
+        if (title.includes("birthday")) return false;
+        if (title.includes("contacts")) return false;
+
+        return true;
+      })
+      .map((event: any) => {
         const isAllDay = !event.start.dateTime;
         
         return {
