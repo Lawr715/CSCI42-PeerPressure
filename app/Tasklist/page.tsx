@@ -67,7 +67,7 @@ export default function TaskList() {
         id: `g-${event.id}`, // avoid ID conflicts
         taskName: event.title,
         taskDescription: "Google Calendar Event",
-        status: "BACKLOG",
+        status: "IN_PROGRESS",
         softDeadline: null,
         hardDeadline: event.start,
         repetition: 0,
