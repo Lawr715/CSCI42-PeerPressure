@@ -13,6 +13,9 @@ export default function HomePage() {
   const [nextTask, setNextTask] = useState<any>(null);
 
   useEffect(() => {
+  if (!isPending && !session?.user) {
+      router.push("/Login"); 
+    } 
   if (session?.user) {
     getNextTask().then(setNextTask);
   }
