@@ -12,7 +12,7 @@ export default function SignInPage() {
     async function handleGoogleSignIn() {
       await signIn.social({
         provider: "google",
-        callbackURL: "/", // Redirects to homepage after successful login
+        callbackURL: "/Homepage",
       });
     }
 

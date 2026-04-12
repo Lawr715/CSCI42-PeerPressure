@@ -7,6 +7,7 @@ export function Navbar() {
   const pathname = usePathname();
 
   const links = [
+    { href: "/Homepage", label: "Home" }, 
     { href: "/profile", label: "Dashboard" },
     { href: "/Calendar", label: "Calendar" },
     { href: "/Tasklist", label: "Tasks" },

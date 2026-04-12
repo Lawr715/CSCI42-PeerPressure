@@ -15,13 +15,14 @@ export async function getCalendarEvents() {
     }
 
     // Fetch the Google Access Token from your database
-    // Better Auth stores this in the 'account' table
     const account = await prisma.account.findFirst({
         where: {
             userId: session.user.id,
             providerId: "google",
         },
     });
+
+    let googleEvents: any[] = [];
 
     if (!account || !account.accessToken) {
         throw new Error("Google account not connected or token missing");

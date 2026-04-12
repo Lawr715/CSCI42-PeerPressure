@@ -126,6 +126,8 @@ model Task {
   repetition      Int         @default(1) // 0: no repeat, 1: daily, 7: weekly
   relevantFiles   String?     // file path or URL
   createdAt       DateTime    @default(now())
+
+  googleEventId   String?     @unique
   
   // Relations
   categoryId      Int?

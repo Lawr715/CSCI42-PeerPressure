@@ -39,6 +39,7 @@ export const auth = betterAuth({
                 "https://www.googleapis.com/auth/calendar.readonly" 
             ],
             accessType: "offline", 
+            prompt: "consent",
         }
     }
 
