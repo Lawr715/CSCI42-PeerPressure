@@ -35,6 +35,7 @@ export const auth = betterAuth({
         enabled: true 
     },
     // --- ADDED GOOGLE PROVIDER BELOW ---
+    /*
     socialProviders: {
         google: {
             clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -48,6 +49,10 @@ export const auth = betterAuth({
             accessType: "offline", 
             prompt: "consent",
         }
+    },
+    */
+    advanced: {
+        trustProxy: true
     }
 
 });
