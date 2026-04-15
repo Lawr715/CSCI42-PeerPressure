@@ -7,18 +7,21 @@ import { withAccelerate } from "@prisma/extension-accelerate";
 
 // Do NOT pass any objects (no datasources, no datasourceUrl)
 // Prisma 7 will read from prisma.config.ts automatically
-let prisma;
+// Build-safe initialization: Only create the pool/adapter if DATABASE_URL is present
+const pool = process.env.DATABASE_URL 
+  ? new Pool({ connectionString: process.env.DATABASE_URL })
+  : null;
 
-if (process.env.NODE_ENV === "development") {
-    // Local Development: Use Postgres adapter directly.
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-    const adapter = new PrismaPg(pool);
+const adapter = pool ? new PrismaPg(pool) : null;
+
+let prisma: any;
+
+if (adapter) {
+    // Standard connection (works for both local and Neon/Production)
     prisma = new PrismaClient({ adapter });
 } else {
-    // Production/Deployed: Use Prisma Accelerate
-    prisma = new PrismaClient({
-        accelerateUrl: process.env.PRISMA_DATABASE_URL
-    }).$extends(withAccelerate());
+    // Fallback: This allows the build to finish even without a DB connection string
+    prisma = {} as any;
 }
 export const auth = betterAuth({
     database: prismaAdapter(prisma, {
