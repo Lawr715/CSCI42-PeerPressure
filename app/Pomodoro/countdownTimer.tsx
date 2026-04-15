@@ -27,6 +27,13 @@ export function CountdownTimer(){
         } 
     }, [isPending, session, router]); 
 
+    // Auto-load settings on mount - Moved to top level per Rules of Hooks
+    useEffect(() => {
+        if (session?.user?.id) {
+            loadSettings();
+        }
+    }, [session?.user?.id]);
+
     useEffect(() => {
         let interval: NodeJS.Timeout;
         if (isRunning){
@@ -52,11 +59,6 @@ export function CountdownTimer(){
         return <p> Redirecting </p>
     } 
     const { user } = session;
-
-    // Auto-load settings on mount
-    useEffect(() => {
-        loadSettings();
-    }, [user.id]);
 
     const startTimer = (newMode: 'focus' | 'rest') => {
         setMode(newMode);

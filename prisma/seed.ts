@@ -27,8 +27,8 @@ async function seed() {
         data: {
             taskName: "Fix login page layout",
             taskDescription: "The login page has alignment issues on mobile devices",
-            status: "Done",
-            assignedToId: "user-1",
+            status: "DONE",
+            assignedUsers: { connect: { id: "user-1" } },
             categoryId: cat1.id,
             hardDeadline: new Date("2026-03-08"),
         },
@@ -38,8 +38,8 @@ async function seed() {
         data: {
             taskName: "Design dashboard mockup",
             taskDescription: "Create wireframes for the main dashboard",
-            status: "Done",
-            assignedToId: "user-1",
+            status: "DONE",
+            assignedUsers: { connect: { id: "user-1" } },
             categoryId: cat2.id,
             hardDeadline: new Date("2026-03-09"),
         },
@@ -49,8 +49,8 @@ async function seed() {
         data: {
             taskName: "Write unit tests for API",
             taskDescription: "Cover all meeting endpoints with tests",
-            status: "In Progress",
-            assignedToId: "user-1",
+            status: "IN_PROGRESS",
+            assignedUsers: { connect: { id: "user-1" } },
             categoryId: cat1.id,
             hardDeadline: new Date("2026-03-05"), // Overdue!
         },
@@ -60,8 +60,8 @@ async function seed() {
         data: {
             taskName: "Update project documentation",
             taskDescription: "Add API docs for new meeting endpoints",
-            status: "Backlog",
-            assignedToId: "user-1",
+            status: "BACKLOG",
+            assignedUsers: { connect: { id: "user-1" } },
             categoryId: cat3.id,
             hardDeadline: new Date("2026-03-07"), // Overdue!
         },
@@ -71,8 +71,8 @@ async function seed() {
         data: {
             taskName: "Implement notification system",
             taskDescription: "Send email reminders for upcoming deadlines",
-            status: "For Review",
-            assignedToId: "user-1",
+            status: "FOR_REVIEW",
+            assignedUsers: { connect: { id: "user-1" } },
             categoryId: cat1.id,
             hardDeadline: new Date("2026-03-06"), // Overdue!
         },
@@ -82,8 +82,8 @@ async function seed() {
         data: {
             taskName: "Research color palette options",
             taskDescription: "Find modern color schemes for the app redesign",
-            status: "Done",
-            assignedToId: "user-1",
+            status: "DONE",
+            assignedUsers: { connect: { id: "user-1" } },
             categoryId: cat2.id,
             hardDeadline: new Date("2026-03-12"),
         },
@@ -93,8 +93,8 @@ async function seed() {
         data: {
             taskName: "Set up CI/CD pipeline",
             taskDescription: "Configure GitHub Actions for automated deployments",
-            status: "In Progress",
-            assignedToId: "user-1",
+            status: "IN_PROGRESS",
+            assignedUsers: { connect: { id: "user-1" } },
             categoryId: cat1.id,
             hardDeadline: new Date("2026-03-15"),
         },
@@ -106,7 +106,7 @@ async function seed() {
         data: {
             taskId: task1.id,
             userId: "user-1",
-            interactionType: "Complete",
+            interactionType: "COMPLETE",
             timestamp: new Date("2026-03-09T14:30:00"),
         },
     });
@@ -115,7 +115,7 @@ async function seed() {
         data: {
             taskId: task2.id,
             userId: "user-1",
-            interactionType: "Complete",
+            interactionType: "COMPLETE",
             timestamp: new Date("2026-03-10T10:15:00"),
         },
     });
@@ -124,7 +124,7 @@ async function seed() {
         data: {
             taskId: task6.id,
             userId: "user-1",
-            interactionType: "Complete",
+            interactionType: "COMPLETE",
             timestamp: new Date("2026-03-10T16:00:00"),
         },
     });
@@ -133,7 +133,7 @@ async function seed() {
         data: {
             taskId: task3.id,
             userId: "user-1",
-            interactionType: "Create",
+            interactionType: "CREATE",
             timestamp: new Date("2026-03-04T09:00:00"),
         },
     });
@@ -142,7 +142,7 @@ async function seed() {
         data: {
             taskId: task7.id,
             userId: "user-1",
-            interactionType: "Create",
+            interactionType: "CREATE",
             timestamp: new Date("2026-03-08T11:00:00"),
         },
     });
