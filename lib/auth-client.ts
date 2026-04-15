@@ -1,6 +1,8 @@
 import { createAuthClient } from "better-auth/react"
 export const authClient = createAuthClient({
-    /** The base URL of the server (optional if you're using the same domain) */
-    baseURL: typeof window !== "undefined" ? window.location.origin : process.env.NEXT_PUBLIC_BETTER_AUTH_URL
+    /** 
+     * On Vercel, Better-Auth client works best when baseURL is left empty,
+     * as it will automatically use the current window origin.
+     */
 })
 export const { signUp, signIn, signOut, useSession } = authClient;

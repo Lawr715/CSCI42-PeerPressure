@@ -27,10 +27,6 @@ export const auth = betterAuth({
     database: prismaAdapter(prisma, {
         provider: "postgresql",
     }),
-    baseURL: process.env.BETTER_AUTH_URL,
-    trustedOrigins: [
-        "https://csci-42-peer-pressure-atm4.vercel.app"
-    ],
     emailAndPassword: { 
         enabled: true 
     },
