@@ -10,6 +10,7 @@ type ViewMode = 'list' | 'kanban';
 interface Task {
   id: number;
   taskName: string;
+  taskDescription: string;
   status: 'BACKLOG' | 'IN_PROGRESS' | 'FOR_REVIEW' | 'DONE';
   softDeadline: string | null;
   hardDeadline: string;
