@@ -24,10 +24,10 @@ export async function GET(request: Request) {
         const completedTasks = await prisma.task.findMany({
             where: {
                 assignedToId: userId,
-                status: "Done",
+                status: "DONE",
                 interactions: {
                     some: {
-                        interactionType: "Complete",
+                        interactionType: "COMPLETE",
                         timestamp: { gte: startOfWeek, lte: endOfWeek }
                     }
                 }
@@ -37,7 +37,7 @@ export async function GET(request: Request) {
         const delayedTasks = await prisma.task.findMany({
             where: {
                 assignedToId: userId,
-                status: { not: "Done" },
+                status: { not: "DONE" },
                 hardDeadline: { lt: new Date() }
             }
         });
