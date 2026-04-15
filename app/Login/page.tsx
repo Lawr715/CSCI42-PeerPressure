@@ -96,7 +96,7 @@ export default function SignInPage() {
             </div>
           </div>
 
-          {/* Google Button */}
+          {/* Google Button - Disabled until configured
           <button
             onClick={handleGoogleSignIn}
             className="w-full flex items-center justify-center gap-3 bg-white text-gray-700 font-semibold rounded-lg px-4 py-3 border border-gray-300 hover:bg-gray-50 transition-colors shadow-sm"
@@ -109,6 +109,7 @@ export default function SignInPage() {
             </svg>
             Sign in with Google
           </button>
+          */}
 
           <p className="text-center text-sm text-gray-600 mt-4">
             Don't have an account? <a href="/Register" className="text-blue-600 font-semibold hover:underline">Create one here</a>
