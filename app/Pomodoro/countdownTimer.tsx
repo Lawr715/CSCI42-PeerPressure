@@ -44,6 +44,7 @@ export function CountdownTimer(){
         }
         return () => clearInterval(interval);
     }, [seconds, minutes, isRunning]);
+
     
     if (isPending)
         return <p className="text-center mt-8 text-white">Loading...</p>;
@@ -51,6 +52,11 @@ export function CountdownTimer(){
         return <p> Redirecting </p>
     } 
     const { user } = session;
+
+    // Auto-load settings on mount
+    useEffect(() => {
+        loadSettings();
+    }, [user.id]);
 
     const startTimer = (newMode: 'focus' | 'rest') => {
         setMode(newMode);
@@ -89,11 +95,6 @@ export function CountdownTimer(){
             console.error("Failed to load Pomodoro settings:", error);
         }
     };
-
-    // Auto-load settings on mount
-    useEffect(() => {
-        loadSettings();
-    }, [user.id]);
 
     return (
         <div className="flex flex-col items-center justify-center p-8 bg-[#E9DABB] min-h-[80vh] rounded-3xl shadow-inner max-w-4xl mx-auto border-8 border-white">
