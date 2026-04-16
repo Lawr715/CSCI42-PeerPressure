@@ -1,30 +1,35 @@
 import { auth } from "@/lib/auth";
 import { toNextJsHandler } from "better-auth/next-js";
-import { NextRequest, NextResponse } from "next/server";
 
-const handler = toNextJsHandler(auth);
+const authHandler = toNextJsHandler(auth);
 
-export const GET = async (req: NextRequest) => {
-    return await handleAuth(req);
-};
-
-export const POST = async (req: NextRequest) => {
-    return await handleAuth(req);
-};
-
-async function handleAuth(req: NextRequest) {
-    // 🛡️ High-Precision Origin Fix
-    // We clone the request and ensure headers match the BETTER_AUTH_URL
-    // This solves the "Invalid origin" issue by aligning the proxy headers.
-    const url = new URL(req.url);
+export const GET = async (req: Request) => {
+    // 🛡️ Header Repair logic
     const betterAuthUrl = process.env.BETTER_AUTH_URL;
-
     if (betterAuthUrl) {
         const targetUrl = new URL(betterAuthUrl);
-        // Force the headers to match the public URL
-        req.headers.set("x-forwarded-host", targetUrl.host);
-        req.headers.set("x-forwarded-proto", targetUrl.protocol.replace(":", ""));
+        // We Use the Headers constructor to create a mutable copy
+        const headers = new Headers(req.headers);
+        headers.set("x-forwarded-host", targetUrl.host);
+        headers.set("x-forwarded-proto", targetUrl.protocol.replace(":", ""));
+        
+        // Clone the request with the new headers
+        const patchedReq = new Request(req, { headers });
+        return await authHandler.GET(patchedReq);
     }
+    return await authHandler.GET(req);
+};
 
-    return await handler(req);
-}
+export const POST = async (req: Request) => {
+    const betterAuthUrl = process.env.BETTER_AUTH_URL;
+    if (betterAuthUrl) {
+        const targetUrl = new URL(betterAuthUrl);
+        const headers = new Headers(req.headers);
+        headers.set("x-forwarded-host", targetUrl.host);
+        headers.set("x-forwarded-proto", targetUrl.protocol.replace(":", ""));
+        
+        const patchedReq = new Request(req, { headers });
+        return await authHandler.POST(patchedReq);
+    }
+    return await authHandler.POST(req);
+};
