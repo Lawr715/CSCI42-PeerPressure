@@ -35,7 +35,9 @@ export function getDB() {
 
   // Runtime Singleton
   if (!globalForPrisma.prisma) {
-    globalForPrisma.prisma = new PrismaClient().$extends(withAccelerate());
+    globalForPrisma.prisma = new PrismaClient({
+      datasourceUrl: url,
+    }).$extends(withAccelerate());
   }
   
   return globalForPrisma.prisma;
