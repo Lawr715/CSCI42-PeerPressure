@@ -2,10 +2,11 @@ import { PrismaClient } from "@prisma/client";
 import { withAccelerate } from "@prisma/extension-accelerate";
 
 /**
- * 🏛️ "Zero-Ambient" Lazy Database Provider (VERSION 11 - PROTOCOL_AWARE)
- * 1. Automatically detects the protocol (postgres vs prisma).
- * 2. Injects 'datasources' for direct links (Forced integration).
- * 3. Injects 'accelerateUrl' for pooled links.
+ * 🏛️ "Zero-Ambient" Lazy Database Provider (VERSION 12 - ZERO_CONFIG)
+ * This is the purest possible Prisma 7 implementation.
+ * 1. No manual constructor options (datasources/accelerateUrl).
+ * 2. Prisma 7 automatically reads configuration from DATABASE_URL and prisma.config.ts.
+ * 3. This resolves the 'Unknown property datasources' error for good.
  */
 
 const globalForPrisma = global as unknown as { prisma: any };
@@ -20,34 +21,15 @@ export function getDB() {
     } as any;
   }
 
-  const url = process.env.DATABASE_URL || 
-              process.env.DATABASE_POSTGRES_URL || 
-              process.env.DATABASE_PRISMA_DATABASE_URL;
-
-  if (!url) {
-      console.error("[DB_FAIL: V11] No connection string found.");
-      return null as any;
-  }
-
   if (!globalForPrisma.prisma) {
-    console.log(`[DB_OK: VERSION 11] Protocol: ${url.startsWith('prisma') ? 'POOLED' : 'DIRECT'}.`);
-
-    const options: any = {};
-    
-    // 🕵️ PROTOCOL ROUTING
-    if (url.startsWith('prisma')) {
-        options.accelerateUrl = url;
-    } else {
-        // Use the standard datasources property for the "Forced" postgres:// link
-        options.datasources = {
-            db: { url: url }
-        };
-    }
+    console.log(`[DB_OK: VERSION 12] Zero-Config Initialized.`);
 
     try {
-        globalForPrisma.prisma = new (PrismaClient as any)(options).$extends(withAccelerate());
+        // 🚀 THE FINAL FIX: No options at all. 
+        // Prisma 7 is smart enough to find your URL in the environment.
+        globalForPrisma.prisma = new (PrismaClient as any)().$extends(withAccelerate());
     } catch (e) {
-        console.error("[DB_CRITICAL: V11] Initialization failed. Check if PRISMA_GENERATE_DATAPROXY=false is set in Vercel.");
+        console.error("[DB_CRITICAL: V12] Initialization failed.");
         throw e;
     }
   }
