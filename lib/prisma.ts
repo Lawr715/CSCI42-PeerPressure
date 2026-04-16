@@ -2,10 +2,10 @@ import { PrismaClient } from "../prisma/generated/client";
 import { withAccelerate } from "@prisma/extension-accelerate";
 
 /**
- * 🏛️ "Zero-Ambient" Lazy Database Provider (VERSION 4 - UNIVERSAL_ROUTER)
- * This version is protocol-aware. It detects if you are using:
- * 1. Direct Connection (postgres://) -> Uses standard datasources
- * 2. Accelerate Connection (prisma://) -> Uses accelerateUrl
+ * 🏛️ "Zero-Ambient" Lazy Database Provider (VERSION 5 - NATIVE_ENV)
+ * We have officially exhausted property overrides (datasourceUrl, accelerateUrl, datasources).
+ * This version uses the NATIVE initialization. We pass NO options to the constructor,
+ * forcing the engine to read directly from process.env.DATABASE_URL.
  */
 
 const globalForPrisma = global as unknown as { prisma: any };
@@ -22,27 +22,16 @@ export function getDB() {
 
   const url = process.env.DATABASE_URL;
   if (!url) {
-    console.error("[DB_FAIL: V4] DATABASE_URL is missing.");
-    return null as any;
+      console.error("[DB_FAIL: V5] DATABASE_URL is missing.");
+      return null as any;
   }
 
   if (!globalForPrisma.prisma) {
-    console.log(`[DB_OK: VERSION 4] Protocol: ${url.split(':')[0]}. Length: ${url.length}`);
-
-    // 🎯 UNIVERSAL ROUTING LOGIC
-    const options: any = {};
+    console.log(`[DB_OK: VERSION 5] Protocol detected: ${url.split(':')[0]}. Letting engine handle environment.`);
     
-    if (url.startsWith('prisma://') || url.startsWith('prisma+postgres://')) {
-        // Accelerate Logic
-        options.accelerateUrl = url;
-    } else {
-        // Direct Connection Logic
-        options.datasources = {
-            db: { url: url }
-        };
-    }
-
-    globalForPrisma.prisma = new (PrismaClient as any)(options).$extends(withAccelerate());
+    // 🚀 THE FINAL BREAK: Passing NO options. 
+    // This removes all 'Unknown property' and 'Validation' errors from the constructor.
+    globalForPrisma.prisma = new (PrismaClient as any)().$extends(withAccelerate());
   }
   
   return globalForPrisma.prisma;
