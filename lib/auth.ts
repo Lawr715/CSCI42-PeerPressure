@@ -21,6 +21,9 @@ export function getAuth() {
             database: prismaAdapter(getDB(), {
                 provider: "postgresql",
             }),
+            trustedOrigins: [
+                "https://csci-42-peer-pressure-phi.vercel.app",
+            ],
             secret: process.env.BETTER_AUTH_SECRET,
             baseURL: baseURL,
             emailAndPassword: { 
