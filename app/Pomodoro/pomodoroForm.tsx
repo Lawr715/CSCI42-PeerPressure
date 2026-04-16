@@ -26,7 +26,7 @@ export async function PomodoroForm( userId: string, focusTime: number, restTime:
 }
 
 export async function PomodoroSettings( userId: string ){
-    const settings = await prisma.pomodoroInteraction.findMany({
+    const settings = await getDB().pomodoroInteraction.findMany({
         take: 1,
         orderBy: [{createdAt: "desc",},],
         where: { userId: userId },

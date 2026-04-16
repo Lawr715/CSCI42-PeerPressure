@@ -62,7 +62,7 @@ export async function POST(
         // A simple way is to upsert each availability slot
         const results = [];
         for (const slot of availabilities) {
-            const result = await prisma.meetingAvailability.upsert({
+            const result = await getDB().meetingAvailability.upsert({
                 where: {
                     scheduleId_userId_date_timeSlot: {
                         scheduleId,
