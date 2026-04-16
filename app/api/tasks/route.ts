@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
