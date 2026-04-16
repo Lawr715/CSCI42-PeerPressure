@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { getDB } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 import { auth } from "@/lib/auth";
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
 
     const body = await request.json();
     const { taskName, taskDescription, status, softDeadline, hardDeadline, repetition } = body;
-    const newTask = await prisma.task.create({
+    const newTask = await getDB().task.create({
       data: {
         taskName,
         taskDescription,
@@ -51,7 +51,7 @@ export async function GET() {
 
     const userId = session.user.id;
 
-    const tasks = await prisma.task.findMany({
+    const tasks = await getDB().task.findMany({
     where: {
       assignedUsers: {
         some: {

@@ -1,12 +1,11 @@
-import { auth } from "@/lib/auth";
+import { getAuth } from "@/lib/auth";
 import { toNextJsHandler } from "better-auth/next-js";
 
 export const dynamic = "force-dynamic";
 
 export const GET = async (req: Request) => {
     // 🚀 Lazy Handler Initialization
-    // Moving this inside the function ensures zero database calls during the Vercel Build.
-    const authHandler = toNextJsHandler(auth);
+    const authHandler = toNextJsHandler(getAuth());
 
     const betterAuthUrl = process.env.BETTER_AUTH_URL;
     if (betterAuthUrl) {
@@ -23,7 +22,7 @@ export const GET = async (req: Request) => {
 
 export const POST = async (req: Request) => {
     // 🚀 Lazy Handler Initialization
-    const authHandler = toNextJsHandler(auth);
+    const authHandler = toNextJsHandler(getAuth());
 
     const betterAuthUrl = process.env.BETTER_AUTH_URL;
     if (betterAuthUrl) {

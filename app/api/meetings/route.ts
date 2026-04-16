@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { getDB } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
             );
         }
 
-        const meeting = await prisma.meetingSchedule.create({
+        const meeting = await getDB().meetingSchedule.create({
             data: {
                 meetingName: data.meetingName,
                 meetingDescription: data.meetingDescription,
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
 // Get all meetings (optional utility)
 export async function GET() {
     try {
-        const meetings = await prisma.meetingSchedule.findMany({
+        const meetings = await getDB().meetingSchedule.findMany({
             orderBy: { startDate: "asc" },
         });
         return NextResponse.json(meetings);

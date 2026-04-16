@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { getDB } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -18,12 +18,12 @@ export async function GET(request: Request) {
         endOfWeek.setDate(today.getDate() + (6 - currentDayOfWeek));
         endOfWeek.setHours(23, 59, 59, 999);
 
-        const user = await prisma.user.findUnique({
+        const user = await getDB().user.findUnique({
             where: { id: userId },
             select: { loginStreak: true }
         });
 
-        const completedTasks = await prisma.task.findMany({
+        const completedTasks = await getDB().task.findMany({
             where: {
                 assignedUsers: {
                     some: { id: userId }
@@ -38,7 +38,7 @@ export async function GET(request: Request) {
             }
         });
 
-        const delayedTasks = await prisma.task.findMany({
+        const delayedTasks = await getDB().task.findMany({
             where: {
                 assignedUsers: {
                     some: { id: userId }
@@ -48,7 +48,7 @@ export async function GET(request: Request) {
             }
         });
 
-        const pomodoros = await prisma.pomodoroInteraction.findMany({
+        const pomodoros = await getDB().pomodoroInteraction.findMany({
             where: {
                 userId: userId,
                 createdAt: { gte: startOfWeek, lte: endOfWeek }

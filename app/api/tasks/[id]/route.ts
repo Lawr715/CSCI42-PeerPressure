@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { getDB } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +34,7 @@ export async function PUT(
       updateData.categoryId = parseInt(data.categoryId);
     }
 
-    const updatedTask = await prisma.task.update({
+    const updatedTask = await getDB().task.update({
       where: { id: taskId },
       data: updateData,
     });
@@ -60,7 +60,7 @@ export async function GET(
       return NextResponse.json({ error: "Invalid task ID" }, { status: 400 });
     }
 
-    const task = await prisma.task.findUnique({
+    const task = await getDB().task.findUnique({
       where: { id: taskId },
       include: {
         category: true,

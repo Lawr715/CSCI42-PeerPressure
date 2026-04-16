@@ -1,7 +1,7 @@
 // /app/actions/task.ts
 "use server";
 
-import { prisma } from "@/lib/prisma";
+import { getDB } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
@@ -12,7 +12,7 @@ export async function getNextTask() {
 
   if (!session) return null;
 
-  const task = await prisma.task.findFirst({
+  const task = await getDB().task.findFirst({
     where: {
       assignedUsers: {
         some: {

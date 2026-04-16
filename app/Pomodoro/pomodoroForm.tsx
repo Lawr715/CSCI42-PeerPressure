@@ -1,6 +1,6 @@
 'use server'
 import Form from "next/form";
-import prisma from "@/lib/prisma";
+import { getDB } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 export async function PomodoroForm( userId: string, focusTime: number, restTime: number, formData: FormData ){
@@ -9,7 +9,7 @@ export async function PomodoroForm( userId: string, focusTime: number, restTime:
         "use server";
         //const focusTime = Number(formData.get("focusTime"));
         //const restTime = Number(formData.get("restTime"));
-        const result = await prisma.pomodoroInteraction.create({
+        const result = await getDB().pomodoroInteraction.create({
         data: {
             focusTime: focusTime,
             restTime: restTime,

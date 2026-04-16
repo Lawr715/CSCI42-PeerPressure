@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { getDB } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +11,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Category name is required" }, { status: 400 });
     }
 
-    const newCategory = await prisma.category.create({
+    const newCategory = await getDB().category.create({
       data: { categoryName },
     });
 
@@ -22,6 +22,6 @@ export async function POST(request: Request) {
 }
 
 export async function GET() {
-  const categories = await prisma.category.findMany();
+  const categories = await getDB().category.findMany();
   return NextResponse.json(categories);
 }

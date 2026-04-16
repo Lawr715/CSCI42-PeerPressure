@@ -2,7 +2,7 @@
 
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { prisma } from "@/lib/prisma";
+import { getDB } from "@/lib/prisma";
 
 export async function getCalendarEvents() {
     // Validate the session
@@ -15,7 +15,7 @@ export async function getCalendarEvents() {
     }
 
     // Fetch the Google Access Token from your database
-    const account = await prisma.account.findFirst({
+    const account = await getDB().account.findFirst({
         where: {
             userId: session.user.id,
             providerId: "google",

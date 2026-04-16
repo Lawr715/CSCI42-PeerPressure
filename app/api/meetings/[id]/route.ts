@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { getDB } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +15,7 @@ export async function GET(
             return NextResponse.json({ error: "Invalid schedule ID" }, { status: 400 });
         }
 
-        const meeting = await prisma.meetingSchedule.findUnique({
+        const meeting = await getDB().meetingSchedule.findUnique({
             where: { id: scheduleId },
             include: {
                 availabilities: {
