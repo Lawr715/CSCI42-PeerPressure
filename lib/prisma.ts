@@ -1,26 +1,20 @@
 import { PrismaClient } from "../prisma/generated/client";
 
 /**
- * 🏛️ Architectural Stability Fix (Prisma 7 + Vercel)
- * Instead of a Proxy (which breaks private fields), we use a fallback URL.
- * This satisfies the constructor check during build, but allows the real 
- * DATABASE_URL to take over at runtime.
+ * 🌊 The "Long Term Vibe" Fix: Environment-Level Safety
+ * We ensure DATABASE_URL is never empty during the build phase.
+ * If it's missing (Vercel Build Phase), we inject a ghost URL to satisfy Prisma's strict construction.
+ * At runtime, the real Vercel URL will naturally override this.
  */
+
+if (!process.env.DATABASE_URL && process.env.NODE_ENV === 'production') {
+  process.env.DATABASE_URL = "postgresql://dummy:dummy@localhost:5432/dummy";
+}
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
-// We use a dummy URL only if the real one is missing (during the build phase)
-const buildTimeUrl = "postgresql://dummy:dummy@localhost:5432/dummy";
-
 export const prisma =
-  globalForPrisma.prisma || 
-  new PrismaClient({
-    datasources: {
-      db: {
-        url: process.env.DATABASE_URL || buildTimeUrl
-      }
-    }
-  });
+  globalForPrisma.prisma || new PrismaClient();
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
