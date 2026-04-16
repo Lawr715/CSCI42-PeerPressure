@@ -1,11 +1,13 @@
 import { PrismaClient } from "../prisma/generated/client";
 import { withAccelerate } from "@prisma/extension-accelerate";
+import { PrismaPg } from "@prisma/adapter-pg";
+import pg from "pg";
 
 /**
- * 🏛️ "Zero-Ambient" Lazy Database Provider (VERSION 7 - NAME_AWARE)
- * Prisma-Vercel integration often uses 'DATABASE_POSTGRES_URL' instead of 'DATABASE_URL'.
- * This version scans all possible names and explicitly passes the URL to the constructor
- * to satisfy the 'non-empty options' requirement.
+ * 🏛️ "Zero-Ambient" Lazy Database Provider (VERSION 8 - UNIVERSAL_ADAPTER)
+ * We have officially hit the limit of Prisma's Protocol Engine.
+ * This version uses the DRIVER ADAPTER pattern to bypass engine validation.
+ * It uses the 'pg' library to handle the connection, which Prisma cannot reject.
  */
 
 const globalForPrisma = global as unknown as { prisma: any };
@@ -20,31 +22,35 @@ export function getDB() {
     } as any;
   }
 
-  // 🕵️ SCAN FOR ANY VALID PRISMA URL
   const url = process.env.DATABASE_URL || 
               process.env.DATABASE_POSTGRES_URL || 
               process.env.DATABASE_PRISMA_DATABASE_URL;
 
   if (!url) {
-      console.error("[DB_FAIL: V7] No database connection string found in environment variables.");
+      console.error("[DB_FAIL: V8] No connection string found.");
       return null as any;
   }
 
   if (!globalForPrisma.prisma) {
-    console.log(`[DB_OK: VERSION 7] Found URL via: ${process.env.DATABASE_URL ? 'STANDARD' : 'VERCEL_INTEGRATION'}.`);
+    console.log(`[DB_OK: VERSION 8] Using Universal Driver Adapter.`);
 
-    const options: any = {};
-    
-    // 🚀 EXPLICIT INJECTION: This kills the 'non-empty constructor' error.
-    if (url.startsWith('prisma')) {
-        options.accelerateUrl = url;
-    } else {
-        options.datasources = {
-            db: { url: url }
-        };
+    try {
+        if (url.startsWith('prisma')) {
+            // If it's a pooled URL, we use the Accelerate property
+            globalForPrisma.prisma = new (PrismaClient as any)({
+                accelerateUrl: url
+            }).$extends(withAccelerate());
+        } else {
+            // 🚀 THE MAGIC PLUG: Use a native PG pool. 
+            // This ignores all 'Unknown property datasources' errors.
+            const pool = new pg.Pool({ connectionString: url });
+            const adapter = new PrismaPg(pool);
+            globalForPrisma.prisma = new (PrismaClient as any)({ adapter }).$extends(withAccelerate());
+        }
+    } catch (e) {
+        console.error("[DB_CRITICAL: V8] Adapter initialization failed.");
+        throw e;
     }
-
-    globalForPrisma.prisma = new (PrismaClient as any)(options).$extends(withAccelerate());
   }
   
   return globalForPrisma.prisma;
