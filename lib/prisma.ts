@@ -2,9 +2,12 @@ import { PrismaClient } from "../prisma/generated/client";
 import { withAccelerate } from "@prisma/extension-accelerate";
 
 /**
- * 🏛️ "Zero-Ambient" Lazy Database Provider (VERSION 2 - FORCE_SYNC)
- * This version uses an 'any' cast to bypass Prisma's restrictive internal types
- * and includes a version marker to ensure Vercel isn't using a cached file.
+ * 🏛️ "Zero-Ambient" Lazy Database Provider (VERSION 3 - PRECISION_SYNC)
+ * Diagnostics confirmed that VERSION 2 reached the server.
+ * Diagnostics confirmed that DATABASE_URL is present.
+ * Diagnostics confirmed that 'datasourceUrl' is NOT accepted by this engine version.
+ * 
+ * This version uses ONLY 'accelerateUrl' as verified by the runtime error.
  */
 
 const globalForPrisma = global as unknown as { prisma: any };
@@ -21,19 +24,17 @@ export function getDB() {
 
   const url = process.env.DATABASE_URL;
   if (!url) {
-    console.error("[DB_FAIL: V2] DATABASE_URL is missing.");
+    console.error("[DB_FAIL: V3] DATABASE_URL is missing.");
   } else {
     if (!globalForPrisma.prisma) {
-        // Logging the version to ensure we are seeing the LATEST code in Vercel
-        console.log(`[DB_OK: VERSION 2] URL detected. Length: ${url.length}`);
+        console.log(`[DB_OK: VERSION 3] URL detected. Length: ${url.length}`);
     }
   }
 
   if (!globalForPrisma.prisma) {
-    // 🚀 Using 'as any' to bypass the 'datasourceUrl' vs 'accelerateUrl' type conflict
-    // and passing BOTH just in case the engine is picky.
+    // 🎯 SURGICAL STRIKE:
+    // The engine rejected 'datasourceUrl' but accepts 'accelerateUrl'.
     const options: any = {
-        datasourceUrl: url,
         accelerateUrl: url
     };
 
