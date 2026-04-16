@@ -1,30 +1,22 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-model PomodoroInteraction {
-  id            Int       @default(autoincrement()) @id
-  createdAt     DateTime  @default(now()) @map(name: "created_at")
-  focusTime     Int       @default(25)
-  restTime      Int       @default(5)
-  userId        String?   // Added relation to user
-  user          User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
+// -----------------------------------------------------------------------------
+// 🏛️ MODELS (Simplified & Standardized)
+// -----------------------------------------------------------------------------
 
 model User {
-  id            String    @id
-  name          String
+  id            String    @id @default(cuid())
+  name          String?
   email         String    @unique
   emailVerified Boolean
   image         String?
@@ -33,23 +25,13 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
-  // New fields from Data Dictionary
-  loginStreak   Int       @default(0)
-
-  // Relations
-  tasks         Task[]    @relation("AssignedTasks")
-  interactions  TaskInteraction[]
-  meetingsCreated MeetingSchedule[] @relation("MeetingOrganizer")
-  meetingAvails MeetingAvailability[]
-  pomodoros     PomodoroInteraction[]
-
   @@map("user")
 }
 
 model Session {
   id        String   @id
   expiresAt DateTime
-  token     String   @unique
+  token     String
   createdAt DateTime
   updatedAt DateTime
   ipAddress String?
@@ -57,6 +39,7 @@ model Session {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@unique([token])
   @@map("session")
 }
 
@@ -90,106 +73,71 @@ model Verification {
   @@map("verification")
 }
 
-// =========================================
-// NEW MODELS ADDED FROM DELIVERABLE 3 DATA DICTIONARY
-// =========================================
+// -----------------------------------------------------------------------------
+// 🗓️ APPLICATION MODELS
+// -----------------------------------------------------------------------------
 
-enum TaskStatus {
-  BACKLOG
-  IN_PROGRESS
-  FOR_REVIEW
-  DONE
+model PomodoroInteraction {
+  id        String   @id @default(cuid())
+  userId    String
+  createdAt DateTime @default(now())
+  duration  Int
+  taskName  String?
 }
 
-enum InteractionType {
-  CREATE
-  EDIT
-  COMPLETE
+model PomodoroSettings {
+  id            String @id @default(cuid())
+  userId        String @unique
+  focusTime     Int    @default(25)
+  shortBreak    Int    @default(5)
+  longBreak     Int    @default(15)
+  rounds        Int    @default(4)
+  autoStart     Boolean @default(false)
 }
 
-model Category {
-  id            Int       @id @default(autoincrement())
-  categoryName  String    @default("No Category")
-  tasks         Task[]
+model Meeting {
+  id           String        @id @default(cuid())
+  title        String
+  date         DateTime
+  startTime    String
+  endTime      String
+  organizerId  String
+  participants Participant[]
+  availability Availability[]
+}
+
+model Participant {
+  id        String  @id @default(cuid())
+  meetingId String
+  email     String
+  status    String  @default("PENDING")
+  meeting   Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+}
+
+model Availability {
+  id        String  @id @default(cuid())
+  meetingId String
+  email     String
+  slots     String
+  meeting   Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
 }
 
 model Task {
-  id              Int         @id @default(autoincrement())
-  taskName        String      @default("To Do")
-  taskDescription String?
-  
-  status          TaskStatus  @default(BACKLOG)
-  
-  softDeadline    DateTime?
-  hardDeadline    DateTime    @default(dbgenerated("NOW() + interval '1 week'"))
-  
-  repetition      Int         @default(1) // 0: no repeat, 1: daily, 7: weekly
-  relevantFiles   String?     // file path or URL
-  createdAt       DateTime    @default(now())
-
-  googleEventId   String?     @unique
-  
-  // Relations
-  categoryId      Int?
-  category        Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  
-  assignedUsers   User[]      @relation("AssignedTasks")
-
-  // Subtasks
-  parentTaskId    Int?
-  parentTask      Task?       @relation("Subtasks", fields: [parentTaskId], references: [id], onDelete: Cascade)
-  subtasks        Task[]      @relation("Subtasks")
-
-  // Dependencies (Self Relation)
-  dependencyId    Int?
-  dependency      Task?       @relation("Dependencies", fields: [dependencyId], references: [id], onDelete: SetNull)
-  dependents      Task[]      @relation("Dependencies")
-
-  meetings        MeetingSchedule[]
-  interactions    TaskInteraction[]
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  description String?
+  priority    String   @default("medium")
+  category    String   @default("work")
+  status      String   @default("todo")
+  dueDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
-model TaskInteraction {
-  id              Int             @id @default(autoincrement())
-  timestamp       DateTime        @default(now())
-  interactionType InteractionType @default(CREATE)
-  
-  taskId          Int
-  task            Task            @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  
-  userId          String
-  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model MeetingSchedule {
-  id                  Int       @id @default(autoincrement())
-  meetingName         String    @default("Meeting")
-  meetingDescription  String?
-  startDate           DateTime  @default(now())    @db.Date
-  endDate             DateTime                     @db.Date
-  startTime           String    @default("09:00:00") // Time only
-  endTime             String    @default("17:00:00") // Time only
-  
-  taskId              Int?
-  task                Task?     @relation(fields: [taskId], references: [id], onDelete: SetNull)
-  
-  startedById         String
-  startedBy           User      @relation("MeetingOrganizer", fields: [startedById], references: [id], onDelete: Cascade)
-
-  availabilities      MeetingAvailability[]
-}
-
-model MeetingAvailability {
-  id                  Int       @id @default(autoincrement())
-  scheduleId          Int
-  schedule            MeetingSchedule  @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
-  
-  userId              String
-  user                User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  date                DateTime  @db.Date
-  timeSlot            String    // Represented as 'HH:mm' for 30-min intervals
-  status              String    @default("Free") // "Free" or "Busy"
-
-  @@unique([scheduleId, userId, date, timeSlot])
+model Category {
+  id     String @id @default(cuid())
+  userId String
+  name   String
+  color  String @default("#3B82F6")
 }
