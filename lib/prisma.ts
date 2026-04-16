@@ -2,12 +2,10 @@ import { PrismaClient } from "../prisma/generated/client";
 import { withAccelerate } from "@prisma/extension-accelerate";
 
 /**
- * 🏛️ "Zero-Ambient" Lazy Database Provider (VERSION 3 - PRECISION_SYNC)
- * Diagnostics confirmed that VERSION 2 reached the server.
- * Diagnostics confirmed that DATABASE_URL is present.
- * Diagnostics confirmed that 'datasourceUrl' is NOT accepted by this engine version.
- * 
- * This version uses ONLY 'accelerateUrl' as verified by the runtime error.
+ * 🏛️ "Zero-Ambient" Lazy Database Provider (VERSION 4 - UNIVERSAL_ROUTER)
+ * This version is protocol-aware. It detects if you are using:
+ * 1. Direct Connection (postgres://) -> Uses standard datasources
+ * 2. Accelerate Connection (prisma://) -> Uses accelerateUrl
  */
 
 const globalForPrisma = global as unknown as { prisma: any };
@@ -24,19 +22,25 @@ export function getDB() {
 
   const url = process.env.DATABASE_URL;
   if (!url) {
-    console.error("[DB_FAIL: V3] DATABASE_URL is missing.");
-  } else {
-    if (!globalForPrisma.prisma) {
-        console.log(`[DB_OK: VERSION 3] URL detected. Length: ${url.length}`);
-    }
+    console.error("[DB_FAIL: V4] DATABASE_URL is missing.");
+    return null as any;
   }
 
   if (!globalForPrisma.prisma) {
-    // 🎯 SURGICAL STRIKE:
-    // The engine rejected 'datasourceUrl' but accepts 'accelerateUrl'.
-    const options: any = {
-        accelerateUrl: url
-    };
+    console.log(`[DB_OK: VERSION 4] Protocol: ${url.split(':')[0]}. Length: ${url.length}`);
+
+    // 🎯 UNIVERSAL ROUTING LOGIC
+    const options: any = {};
+    
+    if (url.startsWith('prisma://') || url.startsWith('prisma+postgres://')) {
+        // Accelerate Logic
+        options.accelerateUrl = url;
+    } else {
+        // Direct Connection Logic
+        options.datasources = {
+            db: { url: url }
+        };
+    }
 
     globalForPrisma.prisma = new (PrismaClient as any)(options).$extends(withAccelerate());
   }

@@ -3,8 +3,8 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { getDB } from "./prisma";
 
 /**
- * 🏛️ "Zero-Ambient" Lazy Auth Provider
- * Initialization ONLY happens when getAuth() is called.
+ * 🏛️ "Zero-Ambient" Lazy Auth Provider (VERSION 2 - ORIGIN_BRIDGE)
+ * Added advanced.trustHost: true to support dynamic Vercel preview origins.
  */
 
 let _auth: any = null;
@@ -34,6 +34,10 @@ export function getAuth() {
                     prompt: "consent",
                 }
             },
+            // 🚀 The Origin Bridge: Trust headers from Vercel's proxy
+            advanced: {
+                trustHost: true
+            }
         });
     }
     return _auth;
