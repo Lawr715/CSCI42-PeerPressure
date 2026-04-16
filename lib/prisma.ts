@@ -1,32 +1,27 @@
 import { PrismaClient } from "../prisma/generated/client";
 
 /**
- * 🛰️ Definitive Loop-Breaker: Lazy Prisma Proxy
- * This implementation prevents Prisma from initializing during the build phase.
- * It only calls `new PrismaClient()` at runtime, when a property (like .user) is first accessed.
+ * 🏛️ Architectural Stability Fix (Prisma 7 + Vercel)
+ * Instead of a Proxy (which breaks private fields), we use a fallback URL.
+ * This satisfies the constructor check during build, but allows the real 
+ * DATABASE_URL to take over at runtime.
  */
 
-let _prisma: PrismaClient | null = null;
+const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
-const getPrisma = () => {
-  if (!_prisma) {
-    _prisma = new PrismaClient();
-  }
-  return _prisma;
-};
+// We use a dummy URL only if the real one is missing (during the build phase)
+const buildTimeUrl = "postgresql://dummy:dummy@localhost:5432/dummy";
 
-// We export a Proxy that behaves exactly like PrismaClient
-// but doesn't exist until it's actually used.
-export const prisma = new Proxy({} as PrismaClient, {
-  get(target, prop, receiver) {
-    if (prop === "undefined" || prop === "$$typeof") return undefined;
-    const client = getPrisma();
-    const value = Reflect.get(client, prop, receiver);
-    if (typeof value === "function") {
-      return value.bind(client);
+export const prisma =
+  globalForPrisma.prisma || 
+  new PrismaClient({
+    datasources: {
+      db: {
+        url: process.env.DATABASE_URL || buildTimeUrl
+      }
     }
-    return value;
-  },
-});
+  });
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 export default prisma;
