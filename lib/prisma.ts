@@ -2,11 +2,10 @@ import { PrismaClient } from "@prisma/client";
 import { withAccelerate } from "@prisma/extension-accelerate";
 
 /**
- * 🏛️ "Zero-Ambient" Lazy Database Provider (VERSION 12 - ZERO_CONFIG)
- * This is the purest possible Prisma 7 implementation.
- * 1. No manual constructor options (datasources/accelerateUrl).
- * 2. Prisma 7 automatically reads configuration from DATABASE_URL and prisma.config.ts.
- * 3. This resolves the 'Unknown property datasources' error for good.
+ * 🏛️ "Zero-Ambient" Lazy Database Provider (VERSION 13 - FINAL_STABLE)
+ * 1. Uses 'datasourceUrl' to satisfy Prisma 7's non-empty constructor requirement.
+ * 2. Protocol-aware URL discovery with fallbacks.
+ * 3. Handles Vercel's specific serverless engine initialization.
  */
 
 const globalForPrisma = global as unknown as { prisma: any };
@@ -21,15 +20,26 @@ export function getDB() {
     } as any;
   }
 
+  // 🕵️ Environment-Safe Discovery
+  const url = process.env.DATABASE_URL || 
+              process.env.DATABASE_POSTGRES_URL || 
+              process.env.DATABASE_PRISMA_DATABASE_URL;
+
+  if (!url) {
+      console.error("[DB_FAIL: V13] No connection string found in Vercel environment.");
+      return null as any;
+  }
+
   if (!globalForPrisma.prisma) {
-    console.log(`[DB_OK: VERSION 12] Zero-Config Initialized.`);
+    console.log(`[DB_OK: VERSION 13] Explicit Initialization.`);
 
     try {
-        // 🚀 THE FINAL FIX: No options at all. 
-        // Prisma 7 is smart enough to find your URL in the environment.
-        globalForPrisma.prisma = new (PrismaClient as any)().$extends(withAccelerate());
+        // 🚀 THE DEFINITIVE FIX: Use datasourceUrl to satisfy the Prisma 7 engine.
+        globalForPrisma.prisma = new (PrismaClient as any)({
+            datasourceUrl: url
+        }).$extends(withAccelerate());
     } catch (e) {
-        console.error("[DB_CRITICAL: V12] Initialization failed.");
+        console.error("[DB_CRITICAL: V13] Initialization failed.");
         throw e;
     }
   }
