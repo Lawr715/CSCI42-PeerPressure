@@ -1,21 +1,25 @@
 import { PrismaClient } from "../prisma/generated/client";
+import { withAccelerate } from "@prisma/extension-accelerate";
 
 /**
- * 🛰️ The "Long Term Vibe" Final Fix: Reflect-Aware Lazy Proxy
- * 1. Build-Safe: Never calls new PrismaClient() during the Vercel build phase.
- * 2. Runtime-Safe: Uses Reflect.get with the real instance to avoid Private Field (#state) errors.
- * 3. Performant: Lazy initializes exacty once on the first access.
+ * 🚀 High-Performance "Long Term Vibe" Architecture
+ * 1. Build-Safe: Lazy initializes so it never crashes during Vercel deployment.
+ * 2. Accelerate: Extended to support your db.prisma.io (sk_...) connection string.
+ * 3. Context-Aware: Uses Reflect.get to ensure Prisma 7 private fields work perfectly.
  */
 
-let _prisma: PrismaClient | null = null;
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
+let _prisma: any = null;
+const globalForPrisma = global as unknown as { prisma: any };
 
-const getPrisma = (): PrismaClient => {
+const getPrisma = () => {
   if (!_prisma) {
     if (globalForPrisma.prisma) {
       _prisma = globalForPrisma.prisma;
     } else {
-      _prisma = new PrismaClient();
+      // We initialize the client and EXTEND it with Accelerate
+      const client = new PrismaClient().$extends(withAccelerate());
+      _prisma = client;
+
       if (process.env.NODE_ENV !== "production") {
         globalForPrisma.prisma = _prisma;
       }
@@ -24,10 +28,9 @@ const getPrisma = (): PrismaClient => {
   return _prisma;
 };
 
-// We create the Lazy Proxy
-export const prisma = new Proxy({} as PrismaClient, {
+// The Proxy provides the "Lazy" build-time safety
+export const prisma = new Proxy({} as any, {
   get(target, prop, receiver) {
-    // ⚔️ Guard against premature triggers from framework/dev-tools
     if (
       prop === "toJSON" ||
       prop === "then" ||
@@ -39,9 +42,7 @@ export const prisma = new Proxy({} as PrismaClient, {
 
     const client = getPrisma();
     
-    // 🛡️ Critical Fix for Prisma 7 Private Members (#state)
-    // We get the property from the real client, and we tell JS that the 
-    // 'this' context (receiver) is the REAL CLIENT, not the Proxy.
+    // Use Reflect to maintain the correct internal context for the extended client
     const value = Reflect.get(client, prop, client);
     
     if (typeof value === "function") {
