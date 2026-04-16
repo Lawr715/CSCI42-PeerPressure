@@ -3,20 +3,26 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { getDB } from "./prisma";
 
 /**
- * 🏛️ "Zero-Ambient" Lazy Auth Provider (VERSION 2 - ORIGIN_BRIDGE)
- * Added advanced.trustHost: true to support dynamic Vercel preview origins.
+ * 🏛️ "Zero-Ambient" Lazy Auth Provider (VERSION 3 - DYNAMIC_ORIGIN)
+ * 1. Removed invalid 'trustHost' property.
+ * 2. Implemented dynamic baseURL detection for Vercel Preview environments.
  */
 
 let _auth: any = null;
 
 export function getAuth() {
     if (!_auth) {
+        // 🚀 DYNAMIC BASE URL:
+        // Priority: Explicit ENV -> Vercel Deployment URL -> undefined (infer)
+        const baseURL = process.env.BETTER_AUTH_URL || 
+                        (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined);
+
         _auth = betterAuth({
             database: prismaAdapter(getDB(), {
                 provider: "postgresql",
             }),
             secret: process.env.BETTER_AUTH_SECRET,
-            baseURL: process.env.BETTER_AUTH_URL,
+            baseURL: baseURL,
             emailAndPassword: { 
                 enabled: true 
             },
@@ -33,10 +39,6 @@ export function getAuth() {
                     accessType: "offline", 
                     prompt: "consent",
                 }
-            },
-            // 🚀 The Origin Bridge: Trust headers from Vercel's proxy
-            advanced: {
-                trustHost: true
             }
         });
     }
