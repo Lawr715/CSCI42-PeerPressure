@@ -1,12 +1,12 @@
 "use server";
 
-import { auth } from "@/lib/auth";
+import { getAuth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { getDB } from "@/lib/prisma";
 
 export async function getCalendarEvents() {
     // Validate the session
-    const session = await auth.api.getSession({
+    const session = await getAuth().api.getSession({
         headers: await headers(),
     });
 

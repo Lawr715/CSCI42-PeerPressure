@@ -2,11 +2,11 @@
 "use server";
 
 import { getDB } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { getAuth } from "@/lib/auth";
 import { headers } from "next/headers";
 
 export async function getNextTask() {
-  const session = await auth.api.getSession({
+  const session = await getAuth().api.getSession({
     headers: await headers(),
   });
 

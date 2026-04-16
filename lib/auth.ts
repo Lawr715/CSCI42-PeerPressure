@@ -3,8 +3,8 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { getDB } from "./prisma";
 
 /**
- * 🏛️ Radical Architectural Shift: Lazy Auth Provider
- * We no longer export an 'auth' constant. We export a function 'getAuth()'.
+ * 🏛️ "Zero-Ambient" Lazy Auth Provider
+ * Initialization ONLY happens when getAuth() is called.
  */
 
 let _auth: any = null;
@@ -38,6 +38,3 @@ export function getAuth() {
     }
     return _auth;
 }
-
-// Keep a default export for backward compatibility during the refactor
-export const auth = getAuth();
