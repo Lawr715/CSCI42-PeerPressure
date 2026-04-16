@@ -1,16 +1,32 @@
 import { PrismaClient } from "../prisma/generated/client";
 
 /**
- * Standard Prisma Singleton for Next.js (Prisma 7+)
- * Since all API routes are now marked as "force-dynamic", 
- * we can use the simplest initialization pattern.
+ * 🛰️ Definitive Loop-Breaker: Lazy Prisma Proxy
+ * This implementation prevents Prisma from initializing during the build phase.
+ * It only calls `new PrismaClient()` at runtime, when a property (like .user) is first accessed.
  */
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
+let _prisma: PrismaClient | null = null;
 
-export const prisma =
-  globalForPrisma.prisma || new PrismaClient();
+const getPrisma = () => {
+  if (!_prisma) {
+    _prisma = new PrismaClient();
+  }
+  return _prisma;
+};
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+// We export a Proxy that behaves exactly like PrismaClient
+// but doesn't exist until it's actually used.
+export const prisma = new Proxy({} as PrismaClient, {
+  get(target, prop, receiver) {
+    if (prop === "undefined" || prop === "$$typeof") return undefined;
+    const client = getPrisma();
+    const value = Reflect.get(client, prop, receiver);
+    if (typeof value === "function") {
+      return value.bind(client);
+    }
+    return value;
+  },
+});
 
 export default prisma;
