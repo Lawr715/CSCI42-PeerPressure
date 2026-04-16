@@ -1,12 +1,11 @@
 import { PrismaClient } from "../prisma/generated/client";
 import { withAccelerate } from "@prisma/extension-accelerate";
-import { PrismaPg } from "@prisma/adapter-pg";
-import pg from "pg";
 
 /**
- * 🏛️ "Zero-Ambient" Lazy Database Provider (VERSION 9 - SECURE_ADAPTER)
- * 1. Fixed SSL Mode: Explicitly accepting Prisma's certificates to bypass 'verify-full' warnings.
- * 2. Optimized Pool: Adding a small connection timeout to prevent 'Failed to identify' hangs.
+ * 🏛️ "Zero-Ambient" Lazy Database Provider (VERSION 11 - PROTOCOL_AWARE)
+ * 1. Automatically detects the protocol (postgres vs prisma).
+ * 2. Injects 'datasources' for direct links (Forced integration).
+ * 3. Injects 'accelerateUrl' for pooled links.
  */
 
 const globalForPrisma = global as unknown as { prisma: any };
@@ -26,32 +25,29 @@ export function getDB() {
               process.env.DATABASE_PRISMA_DATABASE_URL;
 
   if (!url) {
-      console.error("[DB_FAIL: V9] No connection string found.");
+      console.error("[DB_FAIL: V11] No connection string found.");
       return null as any;
   }
 
   if (!globalForPrisma.prisma) {
-    console.log(`[DB_OK: VERSION 9] Initializing Secure Universal Adapter.`);
+    console.log(`[DB_OK: VERSION 11] Protocol: ${url.startsWith('prisma') ? 'POOLED' : 'DIRECT'}.`);
+
+    const options: any = {};
+    
+    // 🕵️ PROTOCOL ROUTING
+    if (url.startsWith('prisma')) {
+        options.accelerateUrl = url;
+    } else {
+        // Use the standard datasources property for the "Forced" postgres:// link
+        options.datasources = {
+            db: { url: url }
+        };
+    }
 
     try {
-        if (url.startsWith('prisma')) {
-            globalForPrisma.prisma = new (PrismaClient as any)({
-                accelerateUrl: url
-            }).$extends(withAccelerate());
-        } else {
-            // 🚀 SECURE HANDSHAKE: Explicitly allowing the SSL connection for Prisma Postgres
-            const pool = new pg.Pool({ 
-                connectionString: url,
-                ssl: {
-                    rejectUnauthorized: false // Required for some Prisma serverless regions
-                },
-                connectionTimeoutMillis: 5000 
-            });
-            const adapter = new PrismaPg(pool);
-            globalForPrisma.prisma = new (PrismaClient as any)({ adapter }).$extends(withAccelerate());
-        }
+        globalForPrisma.prisma = new (PrismaClient as any)(options).$extends(withAccelerate());
     } catch (e) {
-        console.error("[DB_CRITICAL: V9] Adapter initialization failed.");
+        console.error("[DB_CRITICAL: V11] Initialization failed. Check if PRISMA_GENERATE_DATAPROXY=false is set in Vercel.");
         throw e;
     }
   }
