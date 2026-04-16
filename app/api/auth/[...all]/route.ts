@@ -1,19 +1,20 @@
 import { auth } from "@/lib/auth";
 import { toNextJsHandler } from "better-auth/next-js";
 
-const authHandler = toNextJsHandler(auth);
+export const dynamic = "force-dynamic";
 
 export const GET = async (req: Request) => {
-    // 🛡️ Header Repair logic
+    // 🚀 Lazy Handler Initialization
+    // Moving this inside the function ensures zero database calls during the Vercel Build.
+    const authHandler = toNextJsHandler(auth);
+
     const betterAuthUrl = process.env.BETTER_AUTH_URL;
     if (betterAuthUrl) {
         const targetUrl = new URL(betterAuthUrl);
-        // We Use the Headers constructor to create a mutable copy
         const headers = new Headers(req.headers);
         headers.set("x-forwarded-host", targetUrl.host);
         headers.set("x-forwarded-proto", targetUrl.protocol.replace(":", ""));
         
-        // Clone the request with the new headers
         const patchedReq = new Request(req, { headers });
         return await authHandler.GET(patchedReq);
     }
@@ -21,6 +22,9 @@ export const GET = async (req: Request) => {
 };
 
 export const POST = async (req: Request) => {
+    // 🚀 Lazy Handler Initialization
+    const authHandler = toNextJsHandler(auth);
+
     const betterAuthUrl = process.env.BETTER_AUTH_URL;
     if (betterAuthUrl) {
         const targetUrl = new URL(betterAuthUrl);
