@@ -1,23 +1,55 @@
 import { PrismaClient } from "../prisma/generated/client";
 
 /**
- * 🛠️ Total Safety Prisma Initialization (Prisma 7 + Vercel)
- * This is the ultimate "set it and forget it" pattern.
- * We provide a fallback URL to satisfy the constructor during the build 
- * and during any runtime environment gaps.
+ * 🛰️ The "Long Term Vibe" Final Fix: Reflect-Aware Lazy Proxy
+ * 1. Build-Safe: Never calls new PrismaClient() during the Vercel build phase.
+ * 2. Runtime-Safe: Uses Reflect.get with the real instance to avoid Private Field (#state) errors.
+ * 3. Performant: Lazy initializes exacty once on the first access.
  */
 
+let _prisma: PrismaClient | null = null;
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
-// We use the direct datasourceUrl override which is the most robust way 
-// to ensure Prisma 7 starts up in serverless environments.
-export const prisma =
-  globalForPrisma.prisma ||
-  new PrismaClient({
-    // @ts-ignore - Valid at runtime for Prisma 7 serverless, handles build phase fallback
-    datasourceUrl: process.env.DATABASE_URL || "postgresql://dummy:dummy@localhost:5432/db",
-  } as any);
+const getPrisma = (): PrismaClient => {
+  if (!_prisma) {
+    if (globalForPrisma.prisma) {
+      _prisma = globalForPrisma.prisma;
+    } else {
+      _prisma = new PrismaClient();
+      if (process.env.NODE_ENV !== "production") {
+        globalForPrisma.prisma = _prisma;
+      }
+    }
+  }
+  return _prisma;
+};
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+// We create the Lazy Proxy
+export const prisma = new Proxy({} as PrismaClient, {
+  get(target, prop, receiver) {
+    // ⚔️ Guard against premature triggers from framework/dev-tools
+    if (
+      prop === "toJSON" ||
+      prop === "then" ||
+      prop === "$$typeof" ||
+      typeof prop === "symbol"
+    ) {
+      return undefined;
+    }
+
+    const client = getPrisma();
+    
+    // 🛡️ Critical Fix for Prisma 7 Private Members (#state)
+    // We get the property from the real client, and we tell JS that the 
+    // 'this' context (receiver) is the REAL CLIENT, not the Proxy.
+    const value = Reflect.get(client, prop, client);
+    
+    if (typeof value === "function") {
+      return value.bind(client);
+    }
+    
+    return value;
+  },
+});
 
 export default prisma;
