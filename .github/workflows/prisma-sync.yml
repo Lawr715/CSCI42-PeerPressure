@@ -3,7 +3,7 @@ name: 🏛️ Prisma Database Sync
 on:
   push:
     branches:
-      - main  # 🚀 Fires whenever you push to your main branch
+      - '**'  # 🚀 Fires on ALL branches
     paths:
       - 'prisma/schema.prisma'
       - 'prisma.config.ts'
