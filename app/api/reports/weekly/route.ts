@@ -57,7 +57,7 @@ export async function GET(request: Request) {
         });
 
         let morning = 0, afternoon = 0, evening = 0;
-        pomodoros.forEach(p => {
+        pomodoros.forEach((p: { createdAt: Date }) => {
             const hour = p.createdAt.getHours();
             if (hour >= 5 && hour < 12) morning++;
             else if (hour >= 12 && hour < 17) afternoon++;
