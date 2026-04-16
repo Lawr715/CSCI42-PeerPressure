@@ -2,10 +2,10 @@ import { PrismaClient } from "../prisma/generated/client";
 import { withAccelerate } from "@prisma/extension-accelerate";
 
 /**
- * 🏛️ "Zero-Ambient" Lazy Database Provider (VERSION 6 - THE_VERDICT)
- * This version is designed to be the final word. 
- * ERROR: "PrismaClient needs to be constructed with a non-empty, valid PrismaClientOptions"
- * means your generated client EXCLUSIVELY requires an accelerateUrl property.
+ * 🏛️ "Zero-Ambient" Lazy Database Provider (VERSION 7 - NAME_AWARE)
+ * Prisma-Vercel integration often uses 'DATABASE_POSTGRES_URL' instead of 'DATABASE_URL'.
+ * This version scans all possible names and explicitly passes the URL to the constructor
+ * to satisfy the 'non-empty options' requirement.
  */
 
 const globalForPrisma = global as unknown as { prisma: any };
@@ -20,35 +20,31 @@ export function getDB() {
     } as any;
   }
 
-  const url = process.env.DATABASE_URL;
+  // 🕵️ SCAN FOR ANY VALID PRISMA URL
+  const url = process.env.DATABASE_URL || 
+              process.env.DATABASE_POSTGRES_URL || 
+              process.env.DATABASE_PRISMA_DATABASE_URL;
+
   if (!url) {
-      console.error("[DB_FAIL: V6] DATABASE_URL is completely missing from runtime.");
+      console.error("[DB_FAIL: V7] No database connection string found in environment variables.");
       return null as any;
   }
 
   if (!globalForPrisma.prisma) {
-    console.log(`[DB_OK: VERSION 6] Protocol: ${url.split(':')[0]}.`);
+    console.log(`[DB_OK: VERSION 7] Found URL via: ${process.env.DATABASE_URL ? 'STANDARD' : 'VERCEL_INTEGRATION'}.`);
 
     const options: any = {};
     
-    // 🕵️ THE FINAL LOGIC: 
-    // If we have any URL at all, we MUST pass it to the constructor to move past the "non-empty" error.
-    // If it's postgres://, we use datasources. If it's prisma://, we use accelerateUrl.
+    // 🚀 EXPLICIT INJECTION: This kills the 'non-empty constructor' error.
     if (url.startsWith('prisma')) {
         options.accelerateUrl = url;
     } else {
-        // We force it into datasources - if this fails, the user MUST use Path B (remove Data Proxy flag).
         options.datasources = {
             db: { url: url }
         };
     }
 
-    try {
-        globalForPrisma.prisma = new (PrismaClient as any)(options).$extends(withAccelerate());
-    } catch (e) {
-        console.error("[DB_CRITICAL] Failed to initialize Prisma with provided options. This usually means a mismatch between your DATABASE_URL and your generated client type.");
-        throw e;
-    }
+    globalForPrisma.prisma = new (PrismaClient as any)(options).$extends(withAccelerate());
   }
   
   return globalForPrisma.prisma;
