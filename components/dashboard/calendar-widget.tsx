@@ -42,10 +42,10 @@ export function CalendarWidget() {
   if (!mounted) return null;
 
   return (
-    <div className="w-full bg-white text-black p-4 rounded shadow h-[400px] flex flex-col">
+    <div className="w-full bg-white/50 backdrop-blur-3xl text-[#780000] p-6 rounded-[2.5rem] shadow-xl border border-white h-[400px] flex flex-col">
       <div className="flex justify-between items-center mb-2">
-        <h2 className="font-bold text-lg">Calendar overview</h2>
-        <Link href="/Calendar" className="text-sm text-blue-600 hover:underline">
+        <h2 className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 text-[#780000]">Calendar overview</h2>
+        <Link href="/Calendar" className="text-[10px] font-black tracking-[0.2em] opacity-60 hover:opacity-100 transition-colors uppercase">
           Full Screen ↗
         </Link>
       </div>

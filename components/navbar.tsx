@@ -23,6 +23,7 @@ export function Navbar() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifs, setShowNotifs] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const notifRef = useRef<HTMLDivElement>(null);
   const userRef = useRef<HTMLDivElement>(null);
@@ -119,6 +120,32 @@ export function Navbar() {
     signOut();
     setShowUserMenu(false);
     router.push("/Login");
+  }
+
+  async function handleDeleteAccount() {
+    const confirm1 = window.confirm(
+      "WARNING: You are about to PERMANENTLY delete your account. This will destroy all your tasks, scheduled meetings, owned groups, and messages.\n\nAre you sure you want to proceed?"
+    );
+    if (!confirm1) return;
+
+    const confirm2 = window.confirm(
+      "FINAL WARNING: This action cannot be undone. Is this really what you want?"
+    );
+    if (!confirm2) return;
+
+    setIsDeleting(true);
+    try {
+      const res = await fetch("/api/user/delete", { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete account");
+      
+      await signOut();
+      setShowUserMenu(false);
+      router.push("/Register");
+    } catch (error) {
+      console.error(error);
+      alert("An error occurred while deleting your account.");
+      setIsDeleting(false);
+    }
   }
 
   return (
@@ -272,14 +299,23 @@ export function Navbar() {
                 </Link>
               </div>
 
-              {/* Logout */}
-              <div className="border-t border-[#780000]/5 p-2">
+              {/* Logout & Delete */}
+              <div className="border-t border-[#780000]/5 p-2 space-y-1">
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-5 py-3 hover:bg-red-50 transition-colors text-red-600/60 hover:text-red-600 rounded-xl"
+                  className="w-full flex items-center gap-3 px-5 py-3 hover:bg-[#780000]/5 transition-colors text-[#780000]/80 hover:text-[#780000] rounded-xl"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                   <span className="text-xs font-black uppercase tracking-widest">Log Out</span>
+                </button>
+                
+                <button
+                  onClick={handleDeleteAccount}
+                  disabled={isDeleting}
+                  className="w-full flex items-center gap-3 px-5 py-3 hover:bg-red-50 transition-colors text-red-600/60 hover:text-red-600 rounded-xl disabled:opacity-50"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                  <span className="text-xs font-black uppercase tracking-widest">{isDeleting ? "Deleting..." : "Delete Account"}</span>
                 </button>
               </div>
             </div>

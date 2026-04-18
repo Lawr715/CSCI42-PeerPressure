@@ -30,3 +30,32 @@ export async function getNextTask() {
 
   return task;
 }
+
+export async function getDashboardData() {
+  const session = await getAuth().api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) return null;
+
+  const user = await getDB().user.findUnique({
+    where: { id: session.user.id },
+    select: { loginStreak: true },
+  });
+
+  const tasks = await getDB().task.findMany({
+    where: {
+      OR: [
+        { assignedUsers: { some: { id: session.user.id } } },
+        { group: { members: { some: { userId: session.user.id } } } }
+      ]
+    },
+    orderBy: { hardDeadline: "asc" },
+    take: 4,
+  });
+
+  return {
+    streak: user?.loginStreak || 0,
+    upcomingTasks: tasks
+  };
+}

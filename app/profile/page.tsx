@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation"; 
 import { useSession, signOut } from "@/lib/auth-client"; 
 import { useState, useEffect } from "react"; 
-import { getNextTask } from "@/app/actions/task";
+import { getNextTask, getDashboardData } from "@/app/actions/task";
 
 import { Navbar } from "@/components/navbar";
 import { CalendarWidget } from "@/components/dashboard/calendar-widget";
@@ -13,8 +13,10 @@ import { PomodoroWidget } from "@/components/dashboard/pomodoro-widget";
 export default function DashboardPage() {
   const router = useRouter(); 
   const { data: session, isPending } = useSession(); 
+  
   const [nextTask, setNextTask] = useState<any>(null);
-  const [deleting, setDeleting] = useState(false);
+  const [streak, setStreak] = useState<number>(0);
+  const [tasks, setTasks] = useState<any[]>([]);
 
   useEffect(() => {
     if (!isPending && !session?.user) {
@@ -22,6 +24,12 @@ export default function DashboardPage() {
     } 
     if (session?.user) {
       getNextTask().then(setNextTask);
+      getDashboardData().then(data => {
+        if (data) {
+          setStreak(data.streak);
+          setTasks(data.upcomingTasks);
+        }
+      });
     }
   }, [isPending, session, router]); 
   
@@ -32,30 +40,6 @@ export default function DashboardPage() {
 
   const { user } = session; 
 
-  const handleDeleteAccount = async () => {
-    const confirm1 = window.confirm(
-      "WARNING: You are about to PERMANENTLY delete your account. This will destroy all your tasks, scheduled meetings, owned groups, and messages.\n\nAre you sure you want to proceed?"
-    );
-    if (!confirm1) return;
-
-    const confirm2 = window.confirm(
-      "FINAL WARNING: This action cannot be undone. Is this really what you want?"
-    );
-    if (!confirm2) return;
-
-    setDeleting(true);
-    try {
-      const res = await fetch("/api/user/delete", { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to delete account");
-      
-      await signOut();
-      router.push("/Register");
-    } catch (error) {
-      console.error(error);
-      alert("An error occurred while deleting your account.");
-      setDeleting(false);
-    }
-  };
 
   return (
     <>
@@ -74,12 +58,12 @@ export default function DashboardPage() {
           
           <div className="flex items-center gap-4">
             <div className="bg-white/30 backdrop-blur-md border border-[#780000]/10 shadow-sm rounded-2xl px-5 py-3 flex items-center gap-3">
-              <div className="text-orange-500 font-bold border-2 border-orange-500 rounded-full w-8 h-8 flex items-center justify-center text-sm shadow-inner">
+              <div className="text-orange-500 font-bold border-2 border-orange-500 rounded-full w-8 h-8 flex items-center justify-center text-sm shadow-inner bg-white/50">
                 🔥
               </div>
               <div className="flex flex-col">
                 <span className="text-[10px] text-[#780000]/60 font-black uppercase tracking-widest">Daily Streak</span>
-                <span className="font-black text-[#780000] leading-none">12 Days</span>
+                <span className="font-black text-[#780000] leading-none">{streak} {streak === 1 ? 'Day' : 'Days'}</span>
               </div>
             </div>
           </div>
@@ -118,40 +102,22 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
           
           {/* Column 1: Tasklist & Kanban (Takes up 2 cols on large screens) */}
-          <div className="xl:col-span-2 flex flex-col gap-6">
-            <div className="bg-white/50 backdrop-blur-xl rounded-[2.5rem] shadow-xl border border-white/40 p-2 flex-1 overflow-hidden min-h-[450px]">
-              <TasklistWidget />
-            </div>
+          <div className="xl:col-span-2 min-h-[450px]">
+            <TasklistWidget tasks={tasks} />
           </div>
 
           {/* Column 2: Productivity Tools (Calendar & Pomodoro) */}
           <div className="xl:col-span-1 flex flex-col gap-8">
-            <div className="bg-white/50 backdrop-blur-xl rounded-[2.5rem] shadow-xl border border-white/40 p-2 overflow-hidden">
+            <div className="h-64">
                <PomodoroWidget />
             </div>
 
-            <div className="bg-white/50 backdrop-blur-xl rounded-[2.5rem] shadow-xl border border-white/40 p-2 overflow-hidden flex-1 min-h-[400px]">
+            <div className="flex-1 min-h-[350px]">
                <CalendarWidget />
             </div>
           </div>
         </div>
 
-        {/* Danger Zone */}
-        <div className="pt-10">
-          <div className="bg-red-50/50 backdrop-blur-md rounded-[2.5rem] p-8 border-2 border-red-500/20 text-center">
-            <h3 className="text-xl font-black text-red-600 uppercase tracking-widest mb-2">Danger Zone</h3>
-            <p className="text-sm font-bold text-red-600/70 mb-6 max-w-lg mx-auto">
-              Permanently delete your Sovereign Command Hub account. This action cannot be undone and will erase all data.
-            </p>
-            <button
-              onClick={handleDeleteAccount}
-              disabled={deleting}
-              className="bg-red-600 text-white font-black px-8 py-4 rounded-2xl hover:bg-red-700 active:scale-95 transition-all shadow-lg uppercase tracking-widest text-xs disabled:opacity-50"
-            >
-              {deleting ? "Deleting..." : "Delete My Account"}
-            </button>
-          </div>
-        </div>
 
       </div>
     </main>
