@@ -26,13 +26,18 @@ jobs:
       - name: 📦 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22' # 🚀 UPGRADED to meet @prisma/extension-accelerate requirements
+          node-version: '22' 
           cache: 'npm'
+
+      - name: 🔍 Check Environment
+        run: |
+          node -v
+          npm -v
 
       - name: 🛠️ Install Dependencies
         run: |
           npm config set engine-strict false
-          npm install
+          npm install --no-package-lock
 
       - name: 🏗️ Generate Prisma Client
         run: npx prisma generate
