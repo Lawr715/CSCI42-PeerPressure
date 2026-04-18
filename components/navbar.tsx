@@ -12,6 +12,7 @@ export function Navbar() {
     { href: "/Calendar", label: "Calendar" },
     { href: "/Tasklist", label: "Tasks" },
     { href: "/Pomodoro", label: "Focus" },
+    { href: "/groups", label: "Groups" },
     { href: "/meetings/create", label: "Meetings" },
     { href: "/reports/weekly", label: "Reports" },
   ];
