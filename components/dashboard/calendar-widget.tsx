@@ -51,21 +51,20 @@ export function CalendarWidget() {
         </Link>
       </div>
       
-      <div className="flex-1 overflow-hidden relative dashboard-calendar-mini">
+      <div className="flex-1 overflow-hidden relative dashboard-calendar-mini min-h-[250px]">
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
           initialView="dayGridMonth"
           events={events}
           allDaySlot={true}          
-          displayEventEnd={true}     
-          eventDisplay="block" 
+          displayEventEnd={false}     
           headerToolbar={{
             left: "prev,next title",
             center: "",
             right: "dayGridMonth,timeGridWeek", 
           }}
           height="100%"
-          dayMaxEvents={2}
+          dayMaxEvents={3}
           stickyHeaderDates={true}
         />
 
@@ -168,22 +167,32 @@ export function CalendarWidget() {
             box-shadow: 0 4px 10px rgba(120, 0, 0, 0.2);
           }
 
+          /* Event Dots (Removing text to fix cutoff, keeping inline background) */
+          .dashboard-calendar-mini .fc-daygrid-event-harness {
+            display: inline-flex !important;
+            margin: 0 2px !important;
+          }
+
+          .dashboard-calendar-mini .fc-daygrid-day-events {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 4px !important;
+          }
+
           .dashboard-calendar-mini .fc-event {
             border: none !important;
-            background: #780000 !important;
-            border-radius: 6px !important;
-            margin: 1px 2px !important;
+            border-radius: 100px !important;
+            width: 6px !important;
+            height: 6px !important;
+            padding: 0 !important;
+            min-height: 0 !important;
+            display: block !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
           }
 
           .dashboard-calendar-mini .fc-event-main {
-            padding: 3px 6px !important;
-            font-weight: 800 !important;
-            font-size: 0.6rem !important;
-            color: #E9DABB !important;
-          }
-
-          .dashboard-calendar-mini .fc-daygrid-event-harness {
-            margin: 2px 4px !important;
+            display: none !important;
           }
 
           .dashboard-calendar-mini .fc-scroller {
@@ -194,6 +203,42 @@ export function CalendarWidget() {
             display: none;
           }
         `}</style>
+      </div>
+
+      {/* Elegant Upcoming Reference Legend */}
+      <div className="mt-6 pt-5 border-t border-[#780000]/10 shrink-0">
+        <h3 className="text-[9px] font-black uppercase tracking-[0.2em] opacity-60 mb-4 text-[#780000]">Upcoming Reference</h3>
+        <div className="flex flex-col gap-3">
+          {events.length > 0 ? (
+            events
+              .filter(e => {
+                const eventDate = new Date(e.start);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                return eventDate >= today;
+              })
+              .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
+              .slice(0, 3)
+              .map(evt => (
+                <div key={evt.id} className="flex items-center gap-3">
+                  <div 
+                    className="w-2.5 h-2.5 rounded-full shrink-0 shadow-sm" 
+                    style={{ backgroundColor: evt.color || '#780000' }}
+                  />
+                  <div className="flex flex-col">
+                    <span className="text-[11px] font-bold tracking-wide opacity-90 truncate max-w-[200px]" title={evt.title}>
+                      {evt.title}
+                    </span>
+                    <span className="text-[9px] font-black uppercase tracking-widest opacity-50">
+                      {new Date(evt.start).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </span>
+                  </div>
+                </div>
+              ))
+          ) : (
+            <div className="text-[10px] opacity-40 font-bold uppercase tracking-widest">No scheduled events</div>
+          )}
+        </div>
       </div>
     </div>
   );
