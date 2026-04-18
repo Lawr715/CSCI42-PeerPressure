@@ -9,9 +9,18 @@ import interactionPlugin from "@fullcalendar/interaction";
 import { getCalendarEvents } from "@/app/actions/calendar";
 import { Navbar } from "@/components/navbar";
 
+interface CalendarEvent {
+  id: string;
+  title: string;
+  start: string;
+  end?: string;
+  allDay: boolean;
+  color: string;
+}
+
 export default function CalendarPage() {
   const router = useRouter();
-  const [events, setEvents] = useState([]);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
