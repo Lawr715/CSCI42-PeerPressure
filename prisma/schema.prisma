@@ -183,6 +183,11 @@ model MeetingSchedule {
   // Group ownership (null = personal meeting)
   groupId             String?
   group               Group?    @relation(fields: [groupId], references: [id], onDelete: SetNull)
+
+  // Finalization state
+  isFinalized         Boolean   @default(false)
+  finalDate           DateTime? @db.Date
+  finalTimeSlot       String?
 }
 
 model MeetingAvailability {

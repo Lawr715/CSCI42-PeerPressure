@@ -35,7 +35,7 @@ export function Navbar() {
     { href: "/Pomodoro", label: "Focus" },
     { href: "/groups", label: "Groups" },
     { href: "/messages", label: "Messages" },
-    { href: "/meetings/create", label: "Meetings" },
+    { href: "/meetings", label: "Meetings" },
     { href: "/reports/weekly", label: "Reports" },
   ];
 
