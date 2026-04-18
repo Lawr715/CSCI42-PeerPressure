@@ -100,33 +100,33 @@ export default function TaskList() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-[#F5F5F5] p-8">
+      <div className="min-h-screen bg-[#E9DABB] p-8">
         <div className="max-w-7xl mx-auto">
           
           {/* Header */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-4">
             <div>
-              <h1 className="text-3xl font-extrabold text-[#780000] tracking-tight">Task Manager</h1>
-              <p className="text-gray-500 font-medium">Organize your workflow and track deadlines.</p>
+              <h1 className="text-4xl font-black text-[#780000] tracking-tighter">Task Manager</h1>
+              <p className="text-[#780000]/60 font-bold italic">Sovereign Focus & Productivity</p>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="bg-white rounded-xl p-1 flex shadow-sm border border-gray-100">
+            <div className="flex items-center gap-4">
+              <div className="bg-[#780000]/5 backdrop-blur-md rounded-2xl p-1.5 flex border border-[#780000]/10 shadow-inner">
                 <button
                   onClick={() => setView('list')}
-                  className={`px-5 py-2 rounded-lg text-sm font-bold transition-all ${view === 'list' ? 'bg-[#780000] text-[#E9DABB] shadow-md' : 'text-gray-500 hover:text-gray-900'}`}
+                  className={`px-6 py-2.5 rounded-xl text-sm font-black uppercase tracking-widest transition-all ${view === 'list' ? 'bg-[#780000] text-[#E9DABB] shadow-lg scale-105' : 'text-[#780000]/40 hover:text-[#780000]'}`}
                 >
                   List
                 </button>
                 <button
                   onClick={() => setView('kanban')}
-                  className={`px-5 py-2 rounded-lg text-sm font-bold transition-all ${view === 'kanban' ? 'bg-[#780000] text-[#E9DABB] shadow-md' : 'text-gray-500 hover:text-gray-900'}`}
+                  className={`px-6 py-2.5 rounded-xl text-sm font-black uppercase tracking-widest transition-all ${view === 'kanban' ? 'bg-[#780000] text-[#E9DABB] shadow-lg scale-105' : 'text-[#780000]/40 hover:text-[#780000]'}`}
                 >
                   Kanban
                 </button>
               </div>
               <Link
                 href="/Tasklist/Create"
-                className="bg-[#780000] text-[#E9DABB] font-bold rounded-xl px-5 py-2.5 hover:bg-[#5c0000] transition-colors shadow-md text-sm"
+                className="bg-[#780000] text-[#E9DABB] font-black rounded-2xl px-6 py-3 hover:bg-[#5c0000] hover:scale-105 transition-all shadow-xl text-sm uppercase tracking-widest"
               >
                 + New Task
               </Link>
@@ -135,32 +135,32 @@ export default function TaskList() {
 
           {/* List View */}
           {view === 'list' && (
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="bg-white/30 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/40 overflow-hidden">
               <table className="w-full">
                 <thead>
                   <tr className="bg-[#780000] text-[#E9DABB]">
-                    <th className="text-left p-4 font-bold text-xs uppercase tracking-widest">Task Name</th>
-                    <th className="text-left p-4 font-bold text-xs uppercase tracking-widest">Status</th>
-                    <th className="text-left p-4 font-bold text-xs uppercase tracking-widest">Soft Deadline</th>
-                    <th className="text-left p-4 font-bold text-xs uppercase tracking-widest">Hard Deadline</th>
-                    <th className="text-left p-4 font-bold text-xs uppercase tracking-widest">Category</th>
+                    <th className="text-left p-6 font-black text-[10px] uppercase tracking-[0.2em] opacity-80">Task Name</th>
+                    <th className="text-left p-6 font-black text-[10px] uppercase tracking-[0.2em] opacity-80">Status</th>
+                    <th className="text-left p-6 font-black text-[10px] uppercase tracking-[0.2em] opacity-80">Soft Deadline</th>
+                    <th className="text-left p-6 font-black text-[10px] uppercase tracking-[0.2em] opacity-80">Hard Deadline</th>
+                    <th className="text-left p-6 font-black text-[10px] uppercase tracking-[0.2em] opacity-80">Category</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-[#780000]/5">
                 {tasks.map((task) => (
-                  <tr key={task.id} className="hover:bg-gray-50/50 transition-colors">
+                  <tr key={task.id} className="hover:bg-[#780000]/5 transition-colors group">
                     <td 
-                      className="p-4 font-bold text-[#780000] cursor-pointer hover:underline"
-                      onClick={() => setSelectedTask(task)} // Trigger popup
+                      className="p-6 font-bold text-[#780000] cursor-pointer"
+                      onClick={() => setSelectedTask(task)}
                     >
-                      {task.taskName}
+                      <span className="hover:underline decoration-2">{task.taskName}</span>
                     </td>
-                    <td className="p-4"><StatusBadge status={task.status} /></td>
-                        <td className="p-4 text-sm text-gray-500 font-semibold">{formatDate(task.softDeadline)}</td>
-                        <td className="p-4 text-sm text-[#780000] font-black">{formatDate(task.hardDeadline)}</td>
-                        <td className="p-4 text-xs font-bold">
-                          <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded">
-                            {task.category?.categoryName || "No Tags"}
+                    <td className="p-6"><StatusBadge status={task.status} /></td>
+                        <td className="p-6 text-sm text-[#780000]/60 font-bold">{formatDate(task.softDeadline)}</td>
+                        <td className="p-6 text-sm text-[#780000] font-black">{formatDate(task.hardDeadline)}</td>
+                        <td className="p-6 text-[10px] font-black">
+                          <span className="bg-[#780000]/10 text-[#780000] px-3 py-1 rounded-full uppercase">
+                            {task.category?.categoryName || "Uncategorized"}
                           </span>
                         </td>
                   </tr>
@@ -172,29 +172,28 @@ export default function TaskList() {
 
           {/* Kanban View */}
           {view === 'kanban' && !isLoading && (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
               {['BACKLOG', 'IN_PROGRESS', 'FOR_REVIEW', 'DONE'].map((statusKey) => (
                 <div 
                   key={statusKey} 
-                  className="bg-gray-100/50 rounded-2xl p-4 border border-dashed border-gray-200 transition-colors"
-                  // --- DRAG EVENTS FOR THE COLUMN ---
-                  onDragOver={(e) => e.preventDefault()} // Required to allow dropping
+                  className="bg-[#780000]/5 backdrop-blur-md rounded-[2.5rem] p-6 border-2 border-dashed border-[#780000]/10 transition-all"
+                  onDragOver={(e) => e.preventDefault()}
                   onDrop={(e) => {
                     const taskId = e.dataTransfer.getData("taskId");
                     if (taskId) updateTaskStatus(Number(taskId), statusKey);
                   }}
                 >
-                  <div className="flex items-center justify-between mb-4 px-1">
-                    <h3 className="font-black text-[11px] text-gray-500 uppercase tracking-widest">{statusKey.replace('_', ' ')}</h3>
-                    <span className="text-[10px] font-bold text-white bg-gray-400 px-2 py-0.5 rounded-full">
+                  <div className="flex items-center justify-between mb-8 px-2 font-black">
+                    <h3 className="text-[11px] text-[#780000]/60 uppercase tracking-[0.3em]">{statusKey.replace('_', ' ')}</h3>
+                    <span className="text-[11px] text-[#E9DABB] bg-[#780000] px-2.5 py-0.5 rounded-full shadow-lg">
                       {tasks.filter(t => t.status === statusKey).length}
                     </span>
                   </div>
 
-                  <div className="space-y-3 min-h-[150px]">
+                  <div className="space-y-4 min-h-[300px]">
                     {tasks.filter(t => t.status === statusKey).length === 0 ? (
-                      <div className="py-10 text-center border-2 border-dashed border-gray-200 rounded-xl text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                        Drop here
+                      <div className="py-20 text-center border-2 border-dashed border-[#780000]/10 rounded-3xl text-[10px] text-[#780000]/30 font-black uppercase tracking-widest">
+                        Ready to Focus
                       </div>
                     ) : (
                       tasks.filter(t => t.status === statusKey).map((task) => (
@@ -208,13 +207,13 @@ export default function TaskList() {
                           onDragEnd={(e) => {
                             e.currentTarget.style.opacity = '1';
                           }}
-                          className="p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-[#780000] transition-all cursor-grab active:cursor-grabbing group"
+                          className="p-6 bg-white/60 backdrop-blur-xl rounded-3xl shadow-xl border border-white/80 hover:border-[#780000] hover:scale-[1.03] transition-all cursor-grab active:cursor-grabbing group ring-1 ring-[#780000]/5"
                         >
-                          <p className="font-bold text-gray-800 text-sm mb-3 group-hover:text-[#780000]">{task.taskName}</p>
+                          <p className="font-black text-[#780000] text-sm mb-4 leading-tight">{task.taskName}</p>
                           <MiniProgressBar status={task.status} />
-                          <div className="mt-3 flex justify-between items-center">
-                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-tighter">Due: {formatDate(task.hardDeadline)}</span>
-                            <div className="w-2 h-2 rounded-full bg-gray-200" />
+                          <div className="mt-5 flex justify-between items-center">
+                            <span className="text-[9px] font-black text-[#780000]/40 uppercase tracking-tighter">Due {formatDate(task.hardDeadline)}</span>
+                            <div className={`w-2 h-2 rounded-full ${task.status === 'DONE' ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.4)]' : 'bg-[#780000]/20'}`} />
                           </div>
                         </div>
                       ))
@@ -227,52 +226,49 @@ export default function TaskList() {
 
         {/* --- THE POPUP MODAL --- */}
         {selectedTask && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl animate-in fade-in zoom-in duration-200">
-              <div className="flex justify-between items-start mb-4">
-                <h2 className="text-2xl font-black text-[#780000]">{selectedTask.taskName}</h2>
+          <div className="fixed inset-0 bg-[#780000]/40 backdrop-blur-2xl flex items-center justify-center z-50 p-6">
+            <div className="bg-[#E9DABB] rounded-[3rem] max-w-lg w-full p-10 shadow-[0_0_100px_rgba(120,0,0,0.2)] border border-[#780000]/10 animate-in fade-in zoom-in slide-in-from-bottom-8 duration-300">
+              <div className="flex justify-between items-start mb-8">
+                <h2 className="text-3xl font-black text-[#780000] tracking-tighter leading-none">{selectedTask.taskName}</h2>
                 <button 
                   onClick={() => setSelectedTask(null)}
-                  className="text-gray-400 hover:text-gray-600 font-bold"
+                  className="text-[#780000]/40 hover:text-[#780000] transition-colors bg-[#780000]/5 w-10 h-10 rounded-full flex items-center justify-center text-xl"
                 >
                   ✕
                 </button>
               </div>
 
-              <div className="space-y-4">
-                <div>
-                  <h4 className="text-xs font-black uppercase text-gray-400 tracking-widest mb-1">Description</h4>
-                  <p className="text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-100">
-                    {selectedTask.taskDescription || "No description provided."}
-                    {/* unsure why taskDescription is being marked as unrecognized in my local device when it loads just fine*/}
+              <div className="space-y-8">
+                <div className="space-y-3">
+                  <h4 className="text-[10px] font-black uppercase text-[#780000]/40 tracking-[0.2em] px-1">Mission Description</h4>
+                  <p className="text-[#780000]/80 bg-white/40 backdrop-blur-md p-6 rounded-3xl border border-white/60 font-medium leading-relaxed shadow-inner">
+                    {selectedTask.taskDescription || "Clear focus requested. No description provided."}
                   </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <h4 className="text-xs font-black uppercase text-gray-400 tracking-widest mb-1">Category</h4>
-                    <p className="text-sm font-bold text-gray-800">{selectedTask.category?.categoryName || "Uncategorized"}</p>
+                <div className="grid grid-cols-2 gap-8 px-1">
+                  <div className="space-y-1">
+                    <h4 className="text-[10px] font-black uppercase text-[#780000]/40 tracking-[0.2em]">Context</h4>
+                    <p className="text-sm font-black text-[#780000] underline decoration-[#780000]/20 underline-offset-4">{selectedTask.category?.categoryName || "General Focus"}</p>
                   </div>
-                  <div>
-                    <h4 className="text-xs font-black uppercase text-gray-400 tracking-widest mb-1">Due Date</h4>
-                    <p className="text-sm font-bold text-[#780000]">{formatDate(selectedTask.hardDeadline)}</p>
+                  <div className="space-y-1">
+                    <h4 className="text-[10px] font-black uppercase text-[#780000]/40 tracking-[0.2em]">Hard Deadline</h4>
+                    <p className="text-sm font-black text-[#780000] tabular-nums">{formatDate(selectedTask.hardDeadline)}</p>
                   </div>
                 </div>
 
-                <hr className="border-gray-100" />
-
-                <div>
-                  <h4 className="text-xs font-black uppercase text-gray-400 tracking-widest mb-3">Update Status</h4>
-                  <div className="flex flex-wrap gap-2">
+                <div className="pt-4 space-y-4">
+                  <h4 className="text-[10px] font-black uppercase text-[#780000]/40 tracking-[0.2em] px-1">Command Status</h4>
+                  <div className="grid grid-cols-2 gap-3">
                     {['BACKLOG', 'IN_PROGRESS', 'FOR_REVIEW', 'DONE'].map((s) => (
                       <button
                         key={s}
                         disabled={isUpdating}
                         onClick={() => updateTaskStatus(selectedTask.id, s)}
-                        className={`px-3 py-1.5 rounded-md text-[10px] font-black uppercase transition-all border
+                        className={`py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border-2
                           ${selectedTask.status === s 
-                            ? 'bg-[#780000] text-white border-[#780000]' 
-                            : 'bg-white text-gray-400 border-gray-200 hover:border-gray-400'}`}
+                            ? 'bg-[#780000] text-[#E9DABB] border-[#780000] shadow-xl scale-[1.02]' 
+                            : 'bg-white/30 text-[#780000]/40 border-transparent hover:bg-white/50 hover:text-[#780000]'}`}
                       >
                         {s.replace('_', ' ')}
                       </button>
@@ -283,9 +279,9 @@ export default function TaskList() {
 
               <button 
                 onClick={() => setSelectedTask(null)}
-                className="mt-8 w-full py-3 bg-gray-100 text-gray-600 font-bold rounded-xl hover:bg-gray-200 transition-colors"
+                className="mt-12 w-full py-4 bg-[#780000]/5 text-[#780000] font-black rounded-2xl hover:bg-[#780000]/10 transition-all uppercase tracking-[0.2em] text-[10px]"
               >
-                Close Details
+                Return to Command
               </button>
             </div>
           </div>

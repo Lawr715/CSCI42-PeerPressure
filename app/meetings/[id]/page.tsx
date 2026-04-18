@@ -110,44 +110,48 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
     return (
         <>
         <Navbar />
-        <div className="min-h-screen bg-[#F9F5F1] px-8 py-6">
-            <div className="max-w-6xl mx-auto">
+        <div className="min-h-screen bg-[#E9DABB] px-8 py-10 font-sans text-[#780000]">
+            <div className="max-w-6xl mx-auto space-y-10">
 
                 {/* Header */}
-                <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div>
-                        <h1 className="text-3xl font-extrabold text-[#1F2937] tracking-tight">{meeting.meetingName}</h1>
-                        {meeting.meetingDescription && <p className="text-gray-500 font-medium mt-1">{meeting.meetingDescription}</p>}
-                        <div className="flex gap-3 mt-3">
-                            <span className="bg-white border border-gray-200 px-4 py-1.5 rounded-full text-xs font-bold text-gray-600 shadow-sm">
+                        <h1 className="text-5xl font-black tracking-tighter uppercase">{meeting.meetingName}</h1>
+                        {meeting.meetingDescription && <p className="text-[#780000]/60 font-bold italic text-lg mt-2">{meeting.meetingDescription}</p>}
+                        <div className="flex flex-wrap gap-4 mt-6">
+                            <span className="bg-white/40 backdrop-blur-md border-2 border-[#780000]/10 px-6 py-2 rounded-2xl text-[10px] font-black text-[#780000] uppercase tracking-widest shadow-xl">
                                 📅 {new Date(meeting.startDate).toLocaleDateString()} → {new Date(meeting.endDate).toLocaleDateString()}
                             </span>
-                            <span className="bg-[#BE123C] px-4 py-1.5 rounded-full text-xs text-white font-bold shadow-sm">
+                            <span className="bg-[#780000] px-6 py-2 rounded-2xl text-[10px] text-[#E9DABB] font-black uppercase tracking-widest shadow-xl">
                                 🕐 {meeting.startTime.slice(0, 5)} – {meeting.endTime.slice(0, 5)}
                             </span>
                         </div>
                     </div>
-                    <div className="flex gap-3">
-                        <button className="px-5 py-2.5 bg-white border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 text-sm font-semibold transition-colors shadow-sm">
-                            Auto-fill from Tasks
+                    <div className="flex gap-4">
+                        <button className="px-6 py-3 bg-[#780000]/5 border-2 border-[#780000]/10 text-[#780000] font-black rounded-2xl hover:bg-[#780000]/10 text-[10px] uppercase tracking-widest transition-all shadow-lg">
+                            Extract Tasks
                         </button>
-                        <button className="px-5 py-2.5 bg-white border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 text-sm font-semibold transition-colors shadow-sm">
-                            Sync Google Calendar
+                        <button className="px-6 py-3 bg-white/40 border-2 border-[#780000]/10 text-[#780000] font-black rounded-2xl hover:bg-white/60 text-[10px] uppercase tracking-widest transition-all shadow-lg">
+                            External Sync
                         </button>
                     </div>
                 </div>
 
-                {/* Availability Grid */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                {/* Availability Grid Card */}
+                <div className="bg-white/30 backdrop-blur-xl rounded-[3rem] shadow-2xl border border-white/40 overflow-hidden">
+                    <div className="p-10 border-b border-[#780000]/5">
+                        <h2 className="text-2xl font-black tracking-tight">Focus Synchronization Grid</h2>
+                        <p className="text-[#780000]/40 font-bold text-xs uppercase tracking-widest mt-1">Select your availability to coordinate collective focus.</p>
+                    </div>
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse table-fixed min-w-[600px]">
+                        <table className="w-full text-left border-collapse table-fixed min-w-[700px]">
                             <thead>
                                 <tr>
-                                    <th className="p-3 border-b border-r border-gray-100 bg-gray-50 font-bold text-gray-600 w-24 sticky left-0 z-10 text-center text-xs uppercase tracking-wider">
+                                    <th className="p-6 border-b border-r border-[#780000]/5 bg-[#780000]/5 font-black text-[#780000] w-32 sticky left-0 z-10 text-center text-[10px] uppercase tracking-[0.2em]">
                                         Time
                                     </th>
                                     {dates.map((date, idx) => (
-                                        <th key={idx} className="p-3 border-b border-gray-100 bg-gray-50 font-bold text-gray-600 text-center text-xs uppercase tracking-wider">
+                                        <th key={idx} className="p-6 border-b border-[#780000]/5 bg-[#780000]/5 font-black text-[#780000] text-center text-[10px] uppercase tracking-[0.2em]">
                                             {date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
                                         </th>
                                     ))}
@@ -155,8 +159,8 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
                             </thead>
                             <tbody>
                                 {timeSlots.map(timeStr => (
-                                    <tr key={timeStr} className="hover:bg-gray-50/30">
-                                        <td className="p-2 border-b border-r border-gray-100 font-semibold text-gray-500 sticky left-0 bg-white z-10 text-center text-sm">
+                                    <tr key={timeStr} className="hover:bg-white/20 transition-colors">
+                                        <td className="p-4 border-b border-r border-[#780000]/5 font-black text-[#780000]/40 sticky left-0 bg-white/60 backdrop-blur-md z-10 text-center text-xs tracking-widest">
                                             {timeStr}
                                         </td>
                                         {dates.map((date, idx) => {
@@ -167,17 +171,18 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
                                             return (
                                                 <td
                                                     key={idx}
-                                                    className="p-1 border-b border-gray-100 cursor-pointer transition-colors duration-150 group"
+                                                    className="p-1.5 border-b border-[#780000]/5 cursor-pointer transition-all duration-300 group"
                                                     onClick={() => toggleSlot(dateStr, timeStr)}
                                                 >
-                                                    <div className={`w-full h-10 rounded-md border flex items-center justify-center transition-all
+                                                    <div className={`w-full h-12 rounded-2xl border-2 flex items-center justify-center transition-all duration-300 transform group-active:scale-95
                                                         ${isFree
-                                                            ? 'bg-[#D1FAE5] border-green-300 text-green-700 hover:bg-green-200'
-                                                            : 'bg-white border-dashed border-gray-200 text-gray-400 hover:bg-gray-50'}`}
+                                                            ? 'bg-[#780000] border-[#780000] text-[#E9DABB] shadow-lg shadow-[#780000]/20'
+                                                            : 'bg-white/40 border-dashed border-[#780000]/10 text-[#780000]/20 hover:border-[#780000]/30 hover:bg-white/60'}`}
                                                     >
-                                                        <span className="text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <span className="text-[10px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
                                                             {isFree ? '✓ Free' : 'Set Free'}
                                                         </span>
+                                                        {isFree && <span className="absolute text-[10px] font-black uppercase tracking-widest group-hover:hidden">Free</span>}
                                                     </div>
                                                 </td>
                                             );
@@ -190,15 +195,26 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
                 </div>
 
                 {/* Save Button */}
-                <div className="mt-8 flex justify-end">
+                <div className="flex justify-between items-center py-6">
+                    <button
+                        onClick={() => router.back()}
+                        className="text-[10px] font-black uppercase tracking-[0.3em] text-[#780000]/40 hover:text-[#780000] transition-colors"
+                    >
+                        ← Back to Calendar
+                    </button>
                     <button
                         onClick={handleSave}
                         disabled={saving}
-                        className="px-8 py-3 bg-[#BE123C] text-white font-bold rounded-lg hover:bg-[#9f1239] transition-colors shadow-sm disabled:opacity-50"
+                        className="px-12 py-5 bg-[#780000] text-[#E9DABB] font-black uppercase tracking-widest text-xs rounded-[2rem] shadow-2xl hover:bg-[#5c0000] hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
                     >
-                        {saving ? "Saving..." : "Save Availabilities"}
+                        {saving ? "Synchronizing..." : "Save Availability"}
                     </button>
                 </div>
+
+            </div>
+        </div>
+        </>
+    );
 
             </div>
         </div>

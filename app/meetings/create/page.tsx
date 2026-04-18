@@ -59,71 +59,71 @@ export default function MeetingCreatePage() {
     return (
         <>
         <Navbar />
-        <div className="min-h-screen bg-[#F9F5F1] px-8 py-6">
-            <div className="max-w-5xl mx-auto space-y-6">
+        <div className="min-h-screen bg-[#E9DABB] px-8 py-10 font-sans text-[#780000]">
+            <div className="max-w-6xl mx-auto space-y-10">
                 
                 {/* Page Header */}
-                <div>
-                    <h1 className="text-3xl font-extrabold text-[#1F2937] tracking-tight">Schedule New Meeting</h1>
-                    <p className="text-gray-500 font-medium mt-1">Define the parameters for your group&apos;s availability poll.</p>
+                <div className="pt-4">
+                    <h1 className="text-5xl font-black tracking-tighter uppercase">Command Meeting</h1>
+                    <p className="text-[#780000]/60 font-bold italic text-lg mt-2">Define the objective and synchronize your collective focus.</p>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
 
                     {/* Left Column: Meeting Details Form */}
-                    <div className="lg:col-span-2 space-y-6">
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                            <h2 className="text-lg font-bold text-gray-800 mb-5">Meeting Details</h2>
-                            <form onSubmit={handleSubmit} className="space-y-5">
+                    <div className="lg:col-span-2 space-y-8">
+                        <div className="bg-white/30 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-white/40 p-10">
+                            <h2 className="text-2xl font-black mb-8 tracking-tight">Mission Parameters</h2>
+                            <form onSubmit={handleSubmit} className="space-y-6">
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1.5">Meeting Title</label>
+                                    <label className="block text-xs font-black uppercase tracking-[0.2em] opacity-60 mb-3 px-1">Meeting Title</label>
                                     <input
                                         required
                                         type="text"
                                         name="meetingName"
                                         value={formData.meetingName}
                                         onChange={handleChange}
-                                        placeholder="e.g., Sprint Planning, Group Study"
-                                        className="w-full px-4 py-3 bg-[#F9F5F1] border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#BE123C] transition-all placeholder:text-gray-400"
+                                        placeholder="e.g., Strategic Alignment, Thesis Review"
+                                        className="w-full px-5 py-4 bg-white/70 border-2 border-[#780000]/10 rounded-2xl text-[#780000] font-bold focus:outline-none focus:border-[#780000] focus:ring-4 focus:ring-[#780000]/5 transition-all placeholder:text-[#780000]/30"
                                     />
                                 </div>
 
-                                {/* Attendees */}
+                                {/* Attendees placeholder - keep as is for now but style it */}
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1.5">Add Attendees</label>
+                                    <label className="block text-xs font-black uppercase tracking-[0.2em] opacity-60 mb-3 px-1">Enlist Attendees</label>
                                     <div className="relative">
-                                        <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                        <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#780000]/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                                         <input
                                             type="text"
-                                            placeholder="Search by name or email..."
-                                            className="w-full pl-10 pr-4 py-3 bg-[#F9F5F1] border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#BE123C] transition-all placeholder:text-gray-400"
+                                            placeholder="Summon by name or institutional email..."
+                                            className="w-full pl-12 pr-5 py-4 bg-white/70 border-2 border-[#780000]/10 rounded-2xl text-[#780000] font-bold focus:outline-none focus:border-[#780000] focus:ring-4 focus:ring-[#780000]/5 transition-all placeholder:text-[#780000]/30"
                                         />
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1.5">Description (Optional)</label>
+                                    <label className="block text-xs font-black uppercase tracking-[0.2em] opacity-60 mb-3 px-1">Description</label>
                                     <textarea
                                         name="meetingDescription"
                                         value={formData.meetingDescription}
                                         onChange={handleChange}
-                                        placeholder="What is this meeting about?"
-                                        rows={3}
-                                        className="w-full px-4 py-3 bg-[#F9F5F1] border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#BE123C] transition-all placeholder:text-gray-400"
+                                        placeholder="What is the intent of this engagement?"
+                                        rows={4}
+                                        className="w-full px-5 py-4 bg-white/70 border-2 border-[#780000]/10 rounded-2xl text-[#780000] font-bold focus:outline-none focus:border-[#780000] focus:ring-4 focus:ring-[#780000]/5 transition-all placeholder:text-[#780000]/30"
                                     />
                                 </div>
 
                                 {/* Date Range */}
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1.5">Date Range</label>
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <label className="block text-xs font-black uppercase tracking-[0.2em] opacity-60 mb-3 px-1">Engagement Window</label>
+                                    <div className="grid grid-cols-2 gap-6">
                                         <input
                                             required
                                             type="date"
                                             name="startDate"
                                             value={formData.startDate}
                                             onChange={handleChange}
-                                            className="w-full px-4 py-3 bg-[#F9F5F1] border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#BE123C] transition-all"
+                                            className="w-full px-5 py-4 bg-white/70 border-2 border-[#780000]/10 rounded-2xl text-[#780000] font-black focus:outline-none focus:border-[#780000] transition-all"
                                         />
                                         <input
                                             required
@@ -132,119 +132,123 @@ export default function MeetingCreatePage() {
                                             value={formData.endDate}
                                             onChange={handleChange}
                                             min={formData.startDate}
-                                            className="w-full px-4 py-3 bg-[#F9F5F1] border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#BE123C] transition-all"
+                                            className="w-full px-5 py-4 bg-white/70 border-2 border-[#780000]/10 rounded-2xl text-[#780000] font-black focus:outline-none focus:border-[#780000] transition-all"
                                         />
                                     </div>
                                 </div>
 
                                 {/* Time Constraints */}
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1.5">Time Constraints</label>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <span className="text-xs text-gray-500 font-medium mb-1 block">Earliest</span>
+                                    <label className="block text-xs font-black uppercase tracking-[0.2em] opacity-60 mb-3 px-1">Focus Hours</label>
+                                    <div className="grid grid-cols-2 gap-6">
+                                        <div className="relative">
+                                            <span className="text-[10px] font-black uppercase opacity-40 absolute top-2 left-5">Earliest</span>
                                             <input
                                                 required
                                                 type="time"
                                                 name="startTime"
                                                 value={formData.startTime}
                                                 onChange={handleChange}
-                                                className="w-full px-4 py-3 bg-[#F9F5F1] border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#BE123C] transition-all"
+                                                className="w-full pt-6 pb-3 px-5 bg-white/70 border-2 border-[#780000]/10 rounded-2xl text-[#780000] font-black focus:outline-none focus:border-[#780000] transition-all"
                                             />
                                         </div>
-                                        <div>
-                                            <span className="text-xs text-gray-500 font-medium mb-1 block">Latest</span>
+                                        <div className="relative">
+                                            <span className="text-[10px] font-black uppercase opacity-40 absolute top-2 left-5">Latest</span>
                                             <input
                                                 required
                                                 type="time"
                                                 name="endTime"
                                                 value={formData.endTime}
                                                 onChange={handleChange}
-                                                className="w-full px-4 py-3 bg-[#F9F5F1] border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#BE123C] transition-all"
+                                                className="w-full pt-6 pb-3 px-5 bg-white/70 border-2 border-[#780000]/10 rounded-2xl text-[#780000] font-black focus:outline-none focus:border-[#780000] transition-all"
                                             />
                                         </div>
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1.5">Associated Task ID (Optional)</label>
+                                    <label className="block text-xs font-black uppercase tracking-[0.2em] opacity-60 mb-3 px-1">Linked Collective Objective (Optional)</label>
                                     <input
                                         type="number"
                                         name="taskId"
                                         value={formData.taskId}
                                         onChange={handleChange}
-                                        placeholder="Link to an existing task"
-                                        className="w-full px-4 py-3 bg-[#F9F5F1] border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#BE123C] transition-all placeholder:text-gray-400"
+                                        placeholder="Reference internal ID"
+                                        className="w-full px-5 py-4 bg-white/70 border-2 border-[#780000]/10 rounded-2xl text-[#780000] font-bold focus:outline-none focus:border-[#780000] transition-all placeholder:text-[#780000]/30"
                                     />
                                 </div>
 
                                 {/* Action Buttons */}
-                                <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
+                                <div className="flex flex-col md:flex-row items-center gap-4 pt-8 border-t border-[#780000]/5">
                                     <button
                                         type="button"
-                                        className="px-5 py-2.5 bg-[#F9F5F1] border border-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-100 transition-colors text-sm"
+                                        className="w-full md:w-auto px-6 py-3 bg-[#780000]/5 border-2 border-[#780000]/10 text-[#780000] font-black uppercase tracking-widest text-[10px] rounded-xl hover:bg-[#780000]/10 transition-all"
                                     >
-                                        Auto-fill from Tasks
+                                        Extract from Tasks
                                     </button>
                                     <button
                                         type="button"
-                                        className="px-5 py-2.5 bg-white border border-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                                        className="w-full md:w-auto px-6 py-3 bg-white/40 border-2 border-[#780000]/10 text-[#780000] font-black uppercase tracking-widest text-[10px] rounded-xl hover:bg-white/60 transition-all"
                                     >
-                                        Sync Google Calendar
+                                        Sync External
                                     </button>
-                                    <div className="flex-1"></div>
+                                    <div className="hidden md:block flex-1"></div>
                                     <button
                                         type="button"
                                         onClick={() => router.back()}
-                                        className="px-5 py-2.5 bg-white border border-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                                        className="w-full md:w-auto px-6 py-3 text-[#780000]/40 font-black uppercase tracking-widest text-[10px] hover:text-[#780000] transition-all"
                                     >
-                                        Cancel
+                                        Discard
                                     </button>
                                     <button
                                         type="submit"
                                         disabled={saving}
-                                        className="px-6 py-2.5 bg-[#BE123C] text-white font-bold rounded-lg hover:bg-[#9f1239] transition-colors shadow-sm disabled:opacity-50 text-sm"
+                                        className="w-full md:w-auto px-10 py-4 bg-[#780000] text-[#E9DABB] font-black uppercase tracking-widest text-xs rounded-2xl shadow-xl hover:bg-[#5c0000] hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
                                     >
-                                        {saving ? "Creating..." : "Save & Send Invites"}
+                                        {saving ? "Deploying..." : "Finalize & Summon"}
                                     </button>
                                 </div>
                             </form>
                         </div>
                     </div>
 
-                    {/* Right Column: Group Progress & Pending */}
-                    <div className="space-y-6">
-                        {/* Group Progress Card */}
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                            <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Group Progress</h3>
-                            <div className="text-center mb-4">
-                                <span className="text-4xl font-black text-[#1F2937]">8</span>
-                                <span className="text-lg text-gray-400 font-medium">/12</span>
-                                <p className="text-xs text-gray-500 mt-1">responses received</p>
+                    {/* Right Column: Analytics & Status */}
+                    <div className="space-y-8">
+                        {/* Collective Response Card */}
+                        <div className="bg-[#780000] rounded-[2.5rem] shadow-2xl p-8 text-[#E9DABB] relative overflow-hidden">
+                            <h3 className="text-[10px] font-black uppercase tracking-[0.3em] opacity-60 mb-6">Collective Response</h3>
+                            <div className="flex items-baseline gap-2 mb-4">
+                                <span className="text-6xl font-black tracking-tighter">8</span>
+                                <span className="text-2xl font-bold opacity-40">/ 12</span>
                             </div>
-                            <div className="w-full bg-gray-100 rounded-full h-2 mb-2">
-                                <div className="bg-[#BE123C] h-2 rounded-full transition-all" style={{ width: '66%' }}></div>
+                            <p className="text-xs font-bold italic opacity-80 mb-8">Synchronized responses received</p>
+                            
+                            <div className="w-full bg-white/10 rounded-full h-3 mb-3">
+                                <div className="bg-[#E9DABB] h-3 rounded-full shadow-[0_0_15px_rgba(233,218,187,0.5)] transition-all" style={{ width: '66%' }}></div>
                             </div>
-                            <p className="text-xs text-gray-400 text-right">66% complete</p>
+                            <p className="text-[10px] font-black text-right opacity-60 tracking-widest uppercase">66% Coherent</p>
+                            
+                            {/* Decorative element */}
+                            <div className="absolute -bottom-10 -right-10 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
                         </div>
 
-                        {/* Pending Responses */}
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                            <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Pending Responses</h3>
-                            <div className="space-y-3">
+                        {/* Pending Summoned Card */}
+                        <div className="bg-white/30 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-white/40 p-8">
+                            <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-[#780000]/40 mb-6">Pending summon</h3>
+                            <div className="space-y-6">
                                 {["Sarah Jenkins", "Mike Ross", "Donna Paulsen", "Harvey Specter"].map((name) => (
-                                    <div key={name} className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-500">
+                                    <div key={name} className="flex items-center gap-4 group">
+                                        <div className="w-10 h-10 rounded-xl bg-[#780000]/10 flex items-center justify-center text-[10px] font-black text-[#780000] group-hover:bg-[#780000] group-hover:text-[#E9DABB] transition-all duration-300">
                                             {name.split(' ').map(n => n[0]).join('')}
                                         </div>
                                         <div>
-                                            <p className="text-sm font-semibold text-gray-800">{name}</p>
-                                            <p className="text-xs text-gray-400">No response yet</p>
+                                            <p className="text-sm font-black text-[#780000] tracking-tight">{name}</p>
+                                            <p className="text-[10px] font-bold text-[#780000]/40 uppercase tracking-wider">Awaiting Signal</p>
                                         </div>
                                     </div>
                                 ))}
                             </div>
-                            <button className="mt-4 text-sm font-semibold text-[#BE123C] hover:text-[#9f1239] transition-colors">
+                            <button className="w-full mt-10 py-4 border-2 border-[#780000]/10 rounded-2xl text-[10px] font-black text-[#780000] uppercase tracking-widest hover:bg-[#780000] hover:text-[#E9DABB] transition-all">
                                 Send Reminders →
                             </button>
                         </div>
@@ -253,8 +257,8 @@ export default function MeetingCreatePage() {
                 </div>
 
                 {/* Footer */}
-                <div className="text-center text-xs text-gray-400 pt-4 pb-2">
-                    © 2024 Peer Pressure Meeting Orchestrator
+                <div className="text-center text-[10px] font-black text-[#780000]/20 uppercase tracking-[0.5em] pt-10 pb-4">
+                    Sovereign Meeting Orchestrator © 2026
                 </div>
 
             </div>

@@ -5,7 +5,6 @@ import { headers } from "next/headers";
 import { getDB } from "@/lib/prisma";
 
 export async function getCalendarEvents() {
-    // Validate the session
     const session = await getAuth().api.getSession({
         headers: await headers(),
     });
@@ -14,59 +13,103 @@ export async function getCalendarEvents() {
         throw new Error("Unauthorized");
     }
 
-    // Fetch the Google Access Token from your database
-    // Better Auth stores this in the 'account' table
-    const account = await getDB().account.findFirst({
-        where: {
-            userId: session.user.id,
-            providerId: "google",
-        },
-    });
+    const userId = session.user.id;
+    const db = getDB();
+    const allEvents: any[] = [];
 
-    if (!account || !account.accessToken) {
-        throw new Error("Google account not connected or token missing");
+    // --- 1. Attempt to Fetch Google Events ---
+    try {
+        const account = await db.account.findFirst({
+            where: { userId: userId, providerId: "google" },
+        });
+
+        if (account?.accessToken) {
+            const now = new Date().toISOString();
+            const response = await fetch(
+                `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${now}&orderBy=startTime&singleEvents=true&maxResults=20`,
+                {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${account.accessToken}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            if (response.ok) {
+                const data = await response.json();
+                const googleEvents = data.items.map((event: any) => ({
+                    id: `google-${event.id}`,
+                    title: `🌐 ${event.summary}`,
+                    start: event.start.dateTime || event.start.date,
+                    end: event.end.dateTime || event.end.date,
+                    allDay: !event.start.dateTime,
+                    color: "#3B82F6", // Subtle Navy for Google
+                }));
+                allEvents.push(...googleEvents);
+            }
+        }
+    } catch (error) {
+        console.error("Google Calendar API skip (Not connected or error):", error);
     }
 
-    // Call the Google Calendar API
-    // fetch events from now until the end of the day (or 10 results)
-    const now = new Date().toISOString();
-    
+    // --- 2. Fetch Local Meetings ---
     try {
-        const response = await fetch(
-            `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${now}&orderBy=startTime&singleEvents=true&maxResults=10`,
-            {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${account.accessToken}`,
-                    "Content-Type": "application/json",
-                },
+        const localMeetings = await db.meetingSchedule.findMany({
+            where: {
+                OR: [
+                    { startedById: userId as any },
+                    // In a real app, you'd check attendees table too
+                ]
             }
-        );
+        });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.error("Google API Error:", errorData);
-            throw new Error("Failed to fetch calendar data");
-        }
+        const mappedMeetings = localMeetings.map(m => ({
+            id: `meeting-${m.id}`,
+            title: `🤝 ${m.meetingName}`,
+            start: `${new Date(m.startDate).toISOString().split('T')[0]}T${m.startTime}`,
+            end: `${new Date(m.endDate).toISOString().split('T')[0]}T${m.endTime}`,
+            allDay: false,
+            color: "#1E3A8A", // Deep Blue for local meetings
+        }));
+        allEvents.push(...mappedMeetings);
+    } catch (error) {
+        console.error("Local Meetings fetch error:", error);
+    }
 
-        const data = await response.json();
-        
-        // Return only the necessary data to the client
-        return data.items.map((event: any) => {
-        const isAllDay = !event.start.dateTime;
-        
-        return {
-            id: event.id,
-            title: event.summary,
-            // For All Day: "2026-03-12"
-            // For Timed: "2026-03-12T10:00:00Z"
-            start: event.start.dateTime || event.start.date,
-            end: event.end.dateTime || event.end.date,
-            allDay: isAllDay, 
-            };
+    // --- 3. Fetch Task Deadlines ---
+    try {
+        const tasksWithDeadlines = await db.task.findMany({
+            where: {
+                assignedUsers: {
+                    some: { id: userId }
+                }
+            }
+        });
+
+        tasksWithDeadlines.forEach(task => {
+            if (task.hardDeadline) {
+                allEvents.push({
+                    id: `task-hard-${task.id}`,
+                    title: `🚨 HARD: ${task.taskName}`,
+                    start: task.hardDeadline,
+                    allDay: true,
+                    color: "#780000", // Deep Red for Hard Deadlines
+                });
+            }
+            if (task.softDeadline) {
+                allEvents.push({
+                    id: `task-soft-${task.id}`,
+                    title: `📅 SOFT: ${task.taskName}`,
+                    start: task.softDeadline,
+                    allDay: true,
+                    color: "#D2691E", // Ochre for Soft Deadlines
+                });
+            }
         });
     } catch (error) {
-        console.error("Calendar Action Error:", error);
-        throw error;
+        console.error("Tasks fetch error:", error);
     }
+
+    return allEvents;
 }

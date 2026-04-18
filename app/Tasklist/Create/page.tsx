@@ -65,43 +65,43 @@ const CreateTaskForm = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Add New Task</h2>
+    <div className="max-w-2xl mx-auto p-10 bg-[#E9DABB] rounded-3xl shadow-2xl border border-[#780000]/10">
+      <h2 className="text-3xl font-bold mb-8 text-[#780000] tracking-tight text-center">Add New Task</h2>
       
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
         {/* Task Name */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Task Name</label>
+        <div className="space-y-1">
+          <label className="block text-sm font-bold text-[#780000]/80 px-1">Task Name</label>
           <input
             type="text"
             name="taskName"
             required
             placeholder="e.g., Finish Project Proposal"
-            className="text-black mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+            className="w-full p-3 bg-white/70 border-2 border-[#780000]/20 rounded-xl focus:border-[#780000] focus:ring-4 focus:ring-[#780000]/5 outline-none transition-all placeholder:text-[#780000]/50 text-[#780000] font-bold"
             value={formData.taskName}
             onChange={handleChange}
           />
         </div>
 
         {/* Description */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Description</label>
+        <div className="space-y-1">
+          <label className="block text-sm font-bold text-[#780000]/80 px-1">Description</label>
           <textarea
             name="taskDescription"
             rows={3}
-            className="text-black mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+            className="w-full p-3 bg-white/70 border-2 border-[#780000]/20 rounded-xl focus:border-[#780000] focus:ring-4 focus:ring-[#780000]/5 outline-none transition-all text-[#780000] font-bold placeholder:text-[#780000]/50"
             value={formData.taskDescription}
             onChange={handleChange}
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Status */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Status</label>
+          <div className="space-y-1">
+            <label className="block text-sm font-bold text-[#780000]/80 px-1">Status</label>
             <select
               name="status"
-              className="text-gray-700 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+              className="w-full p-3 bg-white/70 border-2 border-[#780000]/20 rounded-xl focus:border-[#780000] focus:ring-4 focus:ring-[#780000]/5 outline-none transition-all text-[#780000] font-black appearance-none cursor-pointer"
               value={formData.status}
               onChange={handleChange}
             >
@@ -112,71 +112,77 @@ const CreateTaskForm = () => {
           </div>
 
           {/* Repetition */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Repetition (Count)</label>
+          <div className="space-y-1">
+            <label className="block text-sm font-bold text-[#780000]/80 px-1">Repetition (Count)</label>
             <input
               type="number"
               name="repetition"
               min="1"
-              className="text-black mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+              className="w-full p-3 bg-white/70 border-2 border-[#780000]/20 rounded-xl focus:border-[#780000] focus:ring-4 focus:ring-[#780000]/5 outline-none transition-all text-[#780000] font-bold"
               value={formData.repetition}
               onChange={handleChange}
             />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Soft Deadline */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Soft Deadline (Optional)</label>
+          <div className="space-y-1">
+            <label className="block text-sm font-bold text-[#780000]/80 px-1">Soft Deadline (Optional)</label>
             <input
               type="date"
               name="softDeadline"
-              className="text-black mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+              className="w-full p-3 bg-white/70 border-2 border-[#780000]/20 rounded-xl focus:border-[#780000] focus:ring-4 focus:ring-[#780000]/5 outline-none transition-all text-[#780000] font-bold"
               value={formData.softDeadline}
               onChange={handleChange}
             />
           </div>
 
           {/* Hard Deadline */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Hard Deadline</label>
+          <div className="space-y-1">
+            <label className="block text-sm font-bold text-[#780000]/80 px-1">Hard Deadline Command</label>
             <input
               type="date"
               name="hardDeadline"
               required
-              className="text-black mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+              className="w-full p-3 bg-white/70 border-2 border-[#780000]/20 rounded-xl focus:border-[#780000] focus:ring-4 focus:ring-[#780000]/5 outline-none transition-all text-[#780000] font-bold"
               value={formData.hardDeadline}
               onChange={handleChange}
             />
           </div>
             
-            {/* Category/Tags */}
-          <div>
-          <label className="block text-sm font-medium text-gray-700">Category</label>
-          <select
-            name="categoryId"
-            className="text-black mt-1 block w-full rounded-md border-gray-300 p-2 border"
-            onChange={handleChange}
-          >
-            <option value="">No Category</option>
-            {categories.map(cat => (
-              <option key={cat.id} value={cat.id}>{cat.categoryName}</option>
-            ))}
-          </select>
-          <Link href="/categories/create" className="text-xs text-[#B50D1A] hover:underline">+ Create New Category</Link>
+          {/* Category/Tags */}
+          <div className="space-y-1">
+            <label className="block text-sm font-bold text-[#780000]/80 px-1">Category</label>
+            <div className="relative group">
+              <select
+                name="categoryId"
+                className="w-full p-3 bg-white/70 border-2 border-[#780000]/20 rounded-xl focus:border-[#780000] focus:ring-4 focus:ring-[#780000]/5 outline-none transition-all text-[#780000] font-bold appearance-none cursor-pointer"
+                onChange={handleChange}
+              >
+                <option value="">No Category</option>
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.categoryName}</option>
+                ))}
+              </select>
+              <div className="mt-2 text-right">
+                <Link href="/categories/create" className="text-sm font-bold text-[#780000] hover:text-[#5c0000] transition-colors inline-flex items-center gap-1">
+                  <span className="text-lg">+</span> Create New Category
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
 
         <button
           type="submit"
-          className="w-full bg-[#780000] text-white py-2 px-4 rounded-md hover:bg-[#B50D1A] transition duration-200 font-semibold"
+          className="w-full mt-4 bg-[#780000] text-[#E9DABB] py-4 rounded-xl font-bold text-lg shadow-xl hover:bg-[#5c0000] hover:scale-[1.01] active:scale-[0.99] transition-all duration-200"
         >
           Create Task
         </button>
       </form>
     </div>
   );
-};
+}
 
 export default CreateTaskForm;

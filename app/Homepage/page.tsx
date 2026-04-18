@@ -33,65 +33,73 @@ export default function HomePage() {
     <>
       <Navbar />
 
-      <main className="min-h-screen bg-[#F5F5F5] p-8 text-black font-sans">
-        <div className="max-w-5xl mx-auto space-y-8">
+      <main className="min-h-screen bg-[#E9DABB] p-8 text-[#780000] font-sans">
+        <div className="max-w-5xl mx-auto space-y-12">
 
           {/* Greeting */}
-          <div>
-            <h1 className="text-4xl font-extrabold text-[#780000]">
+          <div className="pt-8">
+            <h1 className="text-5xl font-black text-[#780000] tracking-tighter">
               Yo, {user.name?.split(" ")[0] || "User"}!
             </h1>
-            <p className="text-lg text-gray-600 mt-1">
-              Ready to work?
+            <p className="text-xl text-[#780000]/60 mt-3 font-bold italic">
+              Ready to command your focus?
             </p>
           </div>
 
           {/* Up Next Section */}
-          <div className="bg-[#CE2632] rounded-2xl p-6 text-[#E9DABB] shadow-md flex justify-between items-center relative overflow-hidden">
-            <div>
-              <span className="text-sm font-bold uppercase tracking-widest opacity-80 block mb-2">
-                Up Next
+          <div className="bg-[#780000] rounded-[2.5rem] p-10 text-[#E9DABB] shadow-2xl flex flex-col md:flex-row justify-between items-center relative overflow-hidden border border-[#780000]/10">
+            <div className="z-10 text-center md:text-left">
+              <span className="text-xs font-black uppercase tracking-[0.3em] opacity-60 block mb-4">
+                Current Objective
               </span>
 
-              {/* Replace this with real task later */}
-              <h2 className="text-2xl font-bold">
+              <h2 className="text-4xl font-black tracking-tight mb-2">
                 {nextTask ? nextTask.taskName : "No tasks yet"}
               </h2>
 
-              <p className="opacity-90">
+              <p className="font-bold opacity-80 text-lg italic">
                 {nextTask
-                  ? new Date(nextTask.hardDeadline).toLocaleString()
-                  : "You're all caught up 🎉"}
+                  ? `Due ${new Date(nextTask.hardDeadline).toLocaleDateString()}`
+                  : "You've mastered your schedule 🎉"}
               </p>
             </div>
 
-            <button onClick={() => router.push("/Tasklist")} className="bg-[#E9DABB] text-[#780000] font-bold px-6 py-3 rounded-xl hover:bg-white transition">
-              View Tasks
+            <button 
+              onClick={() => router.push("/Tasklist")} 
+              className="mt-8 md:mt-0 z-10 bg-[#E9DABB] text-[#780000] font-black px-10 py-5 rounded-2xl hover:scale-110 active:scale-95 transition-all shadow-xl uppercase tracking-widest text-xs"
+            >
+              Engage Tasks
             </button>
 
             {/* background effect */}
-            <div className="absolute right-0 top-0 w-64 h-64 bg-white opacity-5 rounded-full -translate-y-1/2 translate-x-1/3 blur-2xl"></div>
+            <div className="absolute right-0 top-0 w-96 h-96 bg-white opacity-5 rounded-full -translate-y-1/2 translate-x-1/3 blur-[100px]"></div>
           </div>
 
           {/* Quick Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-center md:text-left">
 
-            <div className="bg-white rounded-2xl shadow-sm border p-6">
-              <h3 className="font-bold text-lg mb-2">Quick Start</h3>
-              <p className="text-gray-600 text-sm mb-4">
+            <div className="bg-white/30 backdrop-blur-xl rounded-[2rem] shadow-xl border border-white/40 p-10 group hover:bg-white/40 transition-all">
+              <h3 className="font-black text-2xl mb-3 tracking-tight">Quick Start</h3>
+              <p className="text-[#780000]/70 font-bold mb-8">
                 Jump into your tasks or continue where you left off.
               </p>
-              <button onClick={() => router.push("/Tasklist")} className="bg-[#780000] text-white px-4 py-2 rounded-lg hover:bg-[#5a0000]">
+              <button 
+                onClick={() => router.push("/Tasklist")} 
+                className="w-full md:w-auto bg-[#780000] text-[#E9DABB] px-8 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg hover:bg-[#5c0000] transition-all"
+              >
                 Go to Tasklist
               </button>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border p-6">
-              <h3 className="font-bold text-lg mb-2">Focus</h3>
-              <p className="text-gray-600 text-sm mb-4">
+            <div className="bg-white/30 backdrop-blur-xl rounded-[2rem] shadow-xl border border-white/40 p-10 group hover:bg-white/40 transition-all">
+              <h3 className="font-black text-2xl mb-3 tracking-tight">Focus Zone</h3>
+              <p className="text-[#780000]/70 font-bold mb-8">
                 Start a Pomodoro session and get in the zone.
               </p>
-              <button onClick={() => router.push("/Pomodoro")} className="bg-[#CE2632] text-white px-4 py-2 rounded-lg hover:opacity-90">
+              <button 
+                onClick={() => router.push("/Pomodoro")} 
+                className="w-full md:w-auto bg-[#780000] text-[#E9DABB] px-8 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg hover:bg-[#5c0000] transition-all"
+              >
                 Start Timer
               </button>
             </div>
@@ -99,12 +107,14 @@ export default function HomePage() {
           </div>
 
           {/* Logout */}
-          <button
-            onClick={() => signOut()}
-            className="bg-white border border-gray-300 text-gray-700 font-semibold rounded-xl px-5 py-3 hover:bg-gray-50"
-          >
-            Log Out
-          </button>
+          <div className="flex justify-center pt-8">
+            <button
+              onClick={() => signOut()}
+              className="bg-[#780000]/5 text-[#780000]/40 font-black uppercase tracking-[0.2em] text-[10px] rounded-2xl px-12 py-4 hover:bg-[#780000]/10 hover:text-[#780000] transition-all"
+            >
+              Log Out
+            </button>
+          </div>
 
         </div>
       </main>
