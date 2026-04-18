@@ -8,8 +8,17 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { getCalendarEvents } from "@/app/actions/calendar";
 
+interface CalendarEvent {
+  id: string;
+  title: string;
+  start: string;
+  end?: string;
+  allDay: boolean;
+  color: string;
+}
+
 export function CalendarWidget() {
-  const [events, setEvents] = useState([]);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
