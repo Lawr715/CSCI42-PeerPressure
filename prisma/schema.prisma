@@ -35,6 +35,13 @@ model User {
   meetingAvails MeetingAvailability[]
   pomodoros     PomodoroInteraction[]
 
+  // Group & Messaging Relations
+  ownedGroups      Group[]          @relation("GroupOwner")
+  groupMembers     GroupMember[]
+  sentMessages     Message[]        @relation("MessageSender")
+  receivedMessages Message[]        @relation("MessageRecipient")
+  notifications    Notification[]
+
   @@map("user")
 }
 
@@ -138,6 +145,10 @@ model Task {
 
   meetings        MeetingSchedule[]
   interactions    TaskInteraction[]
+
+  // Group ownership (null = personal task)
+  groupId         String?
+  group           Group?    @relation(fields: [groupId], references: [id], onDelete: SetNull)
 }
 
 model TaskInteraction {
@@ -168,6 +179,10 @@ model MeetingSchedule {
   startedBy           User      @relation("MeetingOrganizer", fields: [startedById], references: [id], onDelete: Cascade)
 
   availabilities      MeetingAvailability[]
+
+  // Group ownership (null = personal meeting)
+  groupId             String?
+  group               Group?    @relation(fields: [groupId], references: [id], onDelete: SetNull)
 }
 
 model MeetingAvailability {
@@ -192,4 +207,71 @@ model PomodoroInteraction {
   restTime      Int       @default(5)
   userId        String?   
   user          User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// -----------------------------------------------------------------------------
+// 👥 GROUP & COLLABORATION MODELS
+// -----------------------------------------------------------------------------
+
+model Group {
+  id          String   @id @default(cuid())
+  name        String
+  joinCode    String   @unique   // 6-char uppercase code (e.g., "XK9M2P")
+  createdAt   DateTime @default(now())
+
+  ownerId     String
+  owner       User     @relation("GroupOwner", fields: [ownerId], references: [id])
+
+  members     GroupMember[]
+  tasks       Task[]
+  meetings    MeetingSchedule[]
+  messages    Message[]
+}
+
+model GroupMember {
+  id        String   @id @default(cuid())
+  joinedAt  DateTime @default(now())
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  groupId   String
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, groupId])
+}
+
+// -----------------------------------------------------------------------------
+// 💬 MESSAGING MODELS
+// -----------------------------------------------------------------------------
+
+model Message {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+
+  senderId  String
+  sender    User     @relation("MessageSender", fields: [senderId], references: [id])
+
+  // Group chat: groupId filled, recipientId null
+  // DM: both groupId and recipientId filled (groupId = context)
+  groupId     String?
+  group       Group?   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  recipientId String?
+  recipient   User?    @relation("MessageRecipient", fields: [recipientId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  type      String           // "group_invite", "task_assigned", "message", "meeting_created"
+  title     String
+  body      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  linkUrl   String?
 }
