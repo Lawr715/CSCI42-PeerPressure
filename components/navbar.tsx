@@ -28,7 +28,6 @@ export function Navbar() {
   const userRef = useRef<HTMLDivElement>(null);
 
   const links = [
-    { href: "/Homepage", label: "Home" }, 
     { href: "/profile", label: "Dashboard" },
     { href: "/Calendar", label: "Calendar" },
     { href: "/Tasklist", label: "Tasks" },

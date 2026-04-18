@@ -54,6 +54,7 @@ export default function TaskList() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [groupFilter, setGroupFilter] = useState<string>("all"); // "all", "personal", or a groupId
 
   useEffect(() => {
@@ -89,6 +90,29 @@ export default function TaskList() {
       console.error("Failed to update status", error);
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const handleDeleteTask = async (taskId: number) => {
+    if (!confirm("Are you sure you want to permanently delete this task?")) return;
+    setIsDeleting(true);
+    
+    try {
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        setTasks(tasks.filter(t => t.id !== taskId));
+        setSelectedTask(null);
+      } else {
+        alert("Failed to delete task.");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error deleting task.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -325,12 +349,21 @@ export default function TaskList() {
                 </div>
               </div>
 
-              <button 
-                onClick={() => setSelectedTask(null)}
-                className="mt-12 w-full py-4 bg-[#780000]/5 text-[#780000] font-black rounded-2xl hover:bg-[#780000]/10 transition-all uppercase tracking-[0.2em] text-[10px]"
-              >
-                Return to Command
-              </button>
+              <div className="flex gap-4 mt-12 w-full">
+                <button 
+                  onClick={() => handleDeleteTask(selectedTask.id)}
+                  disabled={isDeleting}
+                  className="flex-1 py-4 bg-red-500/10 text-red-600 font-black rounded-2xl hover:bg-red-500 hover:text-white transition-all uppercase tracking-[0.2em] text-[10px] border border-red-500/20 disabled:opacity-50"
+                >
+                  {isDeleting ? "Deleting..." : "Delete Task"}
+                </button>
+                <button 
+                  onClick={() => setSelectedTask(null)}
+                  className="flex-1 py-4 bg-[#780000]/5 text-[#780000] font-black rounded-2xl hover:bg-[#780000]/10 transition-all uppercase tracking-[0.2em] text-[10px]"
+                >
+                  Return to Command
+                </button>
+              </div>
             </div>
           </div>
         )}

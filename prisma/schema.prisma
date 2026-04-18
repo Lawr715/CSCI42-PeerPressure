@@ -220,7 +220,7 @@ model Group {
   createdAt   DateTime @default(now())
 
   ownerId     String
-  owner       User     @relation("GroupOwner", fields: [ownerId], references: [id])
+  owner       User     @relation("GroupOwner", fields: [ownerId], references: [id], onDelete: Cascade)
 
   members     GroupMember[]
   tasks       Task[]
@@ -251,7 +251,7 @@ model Message {
   createdAt DateTime @default(now())
 
   senderId  String
-  sender    User     @relation("MessageSender", fields: [senderId], references: [id])
+  sender    User     @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
 
   // Group chat: groupId filled, recipientId null
   // DM: both groupId and recipientId filled (groupId = context)
@@ -259,7 +259,7 @@ model Message {
   group       Group?   @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
   recipientId String?
-  recipient   User?    @relation("MessageRecipient", fields: [recipientId], references: [id])
+  recipient   User?    @relation("MessageRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
 }
 
 model Notification {
