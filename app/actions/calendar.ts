@@ -64,23 +64,65 @@ export async function getCalendarEvents() {
 
     // --- 2. Fetch Local Meetings ---
     try {
+        // Get group IDs user belongs to
+        const memberships = await db.groupMember.findMany({
+            where: { userId },
+            select: { groupId: true }
+        });
+        const groupIds = memberships.map((m: { groupId: string | null }) => m.groupId).filter((id: string | null): id is string => id !== null);
+
         const localMeetings = await db.meetingSchedule.findMany({
             where: {
                 OR: [
                     { startedById: userId as any },
-                    // In a real app, you'd check attendees table too
+                    { groupId: { in: groupIds } }
                 ]
+            },
+            include: {
+                group: { select: { name: true } }
             }
         });
 
-        const mappedMeetings = localMeetings.map((m: any) => ({
-            id: `meeting-${m.id}`,
-            title: `🤝 ${m.meetingName}`,
-            start: `${new Date(m.startDate).toISOString().split('T')[0]}T${m.startTime}`,
-            end: `${new Date(m.endDate).toISOString().split('T')[0]}T${m.endTime}`,
-            allDay: false,
-            color: "#1E3A8A", // Deep Blue for local meetings
-        }));
+        const mappedMeetings = localMeetings.map((m: any) => {
+            let start = "";
+            let end = "";
+            let title = `🤝 ${m.meetingName}`;
+
+            if (m.isFinalized && m.finalDate && m.finalTimeSlot) {
+                const dateStr = new Date(m.finalDate).toISOString().split('T')[0];
+                const timePart = m.finalTimeSlot; // e.g., "09:00" or "09:00 – 10:30"
+                
+                if (timePart.includes(" – ")) {
+                    const [s, e] = timePart.split(" – ");
+                    start = `${dateStr}T${s}:00`;
+                    end = `${dateStr}T${e}:00`;
+                } else {
+                    start = `${dateStr}T${timePart}:00`;
+                    // Default 30 min duration if only start time is stored and not a range
+                    const [h, min] = timePart.split(":");
+                    const endD = new Date(`1970-01-01T${timePart}:00`);
+                    endD.setMinutes(endD.getMinutes() + 30);
+                    end = `${dateStr}T${endD.toTimeString().slice(0, 5)}:00`;
+                }
+                title = `✅ ${m.meetingName}${m.group ? ` (${m.group.name})` : ''}`;
+            } else {
+                // For non-finalized, show the range as proposed if wanted, or just the window
+                // User said "set locked meetings", so maybe we show finalized ones prominent
+                // Let's at least handle the basic fields for ongoing polls
+                start = `${new Date(m.startDate).toISOString().split('T')[0]}T${m.startTime}`;
+                end = `${new Date(m.endDate).toISOString().split('T')[0]}T${m.endTime}`;
+                title = `🗳️ Poll: ${m.meetingName}`;
+            }
+
+            return {
+                id: `meeting-${m.id}`,
+                title,
+                start,
+                end,
+                allDay: false,
+                color: m.isFinalized ? "#059669" : "#1E3A8A", // Emerald for finalized, Navy for Polls
+            };
+        });
         allEvents.push(...mappedMeetings);
     } catch (error) {
         console.error("Local Meetings fetch error:", error);

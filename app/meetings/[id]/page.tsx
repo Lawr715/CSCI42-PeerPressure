@@ -54,7 +54,7 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
 
     // Finalization state
     const [isFinalizeMode, setIsFinalizeMode] = useState(false);
-    const [selectedFinalSlot, setSelectedFinalSlot] = useState<string | null>(null);
+    const [selectedFinalSlots, setSelectedFinalSlots] = useState<string[]>([]);
 
     useEffect(() => {
         async function fetchMeeting() {
@@ -110,7 +110,9 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
         const key = `${dateStr}_${timeStr}`;
 
         if (isFinalizeMode) {
-            setSelectedFinalSlot(key === selectedFinalSlot ? null : key);
+            setSelectedFinalSlots(prev => 
+                prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
+            );
             return;
         }
 
@@ -147,22 +149,40 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
     };
 
     const handleFinalize = async () => {
-        if (!selectedFinalSlot) return alert("Please select a time slot to finalize the meeting.");
+        if (selectedFinalSlots.length === 0) return alert("Please select at least one time slot to finalize the meeting.");
         setSaving(true);
         
-        const [date, timeSlot] = selectedFinalSlot.split('_');
+        const dates = selectedFinalSlots.map(s => s.split('_')[0]);
+        const uniqueDates = [...new Set(dates)];
+        if (uniqueDates.length > 1) {
+            setSaving(false);
+            return alert("Please select continuous slots on a single date.");
+        }
+        
+        const finalDateObj = uniqueDates[0];
+        const times = selectedFinalSlots.map(s => s.split('_')[1]).sort();
+        const startTime = times[0];
+        
+        const lastTime = times[times.length - 1];
+        const endD = new Date(`1970-01-01T${lastTime}:00`);
+        endD.setMinutes(endD.getMinutes() + 30);
+        const endTime = endD.toTimeString().slice(0, 5);
+
+        const finalTimeSlotStr = selectedFinalSlots.length === 1 
+            ? startTime 
+            : `${startTime} – ${endTime}`;
+
         try {
             const res = await fetch(`/api/meetings/${meetingId}/finalize`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ finalDate: date, finalTimeSlot: timeSlot })
+                body: JSON.stringify({ finalDate: finalDateObj, finalTimeSlot: finalTimeSlotStr })
             });
             if (!res.ok) throw new Error("Failed to finalize meeting");
             window.location.reload();
         } catch (error) {
             console.error(error);
             alert("Failed to finalize meeting.");
-        } finally {
             setSaving(false);
         }
     };
@@ -329,7 +349,7 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
                                                     
                                                     // Consensus Logic
                                                     const isMajority = maxConsensus > 0 && globalFree === maxConsensus;
-                                                    const isSelectedFinal = selectedFinalSlot === key;
+                                                    const isSelectedFinal = selectedFinalSlots.includes(key);
 
                                                     let cellClasses = 'bg-white/40 border-dashed border-[#780000]/10 text-[#780000]/20 hover:border-[#780000]/30 hover:bg-white/60';
                                                     let content = null;
@@ -399,7 +419,7 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
                             {isFinalizeMode ? (
                                 <button
                                     onClick={handleFinalize}
-                                    disabled={saving || !selectedFinalSlot}
+                                    disabled={saving || selectedFinalSlots.length === 0}
                                     className="px-12 py-5 bg-orange-500 text-white font-black uppercase tracking-widest text-xs rounded-[2rem] shadow-2xl hover:bg-orange-600 hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
                                 >
                                     {saving ? "Finalizing..." : "Confirm Finalization"}

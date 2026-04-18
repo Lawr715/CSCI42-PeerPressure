@@ -117,7 +117,7 @@ export default function CalendarPage() {
           </div>
 
           {/* Legend */}
-          <div className="px-10 py-6 border-t border-[#780000]/5 flex items-center gap-10">
+          <div className="px-10 py-6 border-t border-[#780000]/5 flex flex-wrap items-center gap-10">
             <div className="flex items-center gap-3">
               <span className="w-3 h-3 rounded-full bg-[#780000] shadow-sm"></span>
               <span className="text-[10px] text-[#780000]/60 font-black uppercase tracking-widest">Hard Deadlines</span>
@@ -127,8 +127,16 @@ export default function CalendarPage() {
               <span className="text-[10px] text-[#780000]/60 font-black uppercase tracking-widest">Soft Deadlines</span>
             </div>
             <div className="flex items-center gap-3">
+              <span className="w-3 h-3 rounded-full bg-[#059669] shadow-sm"></span>
+              <span className="text-[10px] text-[#780000]/60 font-black uppercase tracking-widest">Confirmed Meetings</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="w-3 h-3 rounded-full bg-[#1E3A8A] shadow-sm"></span>
+              <span className="text-[10px] text-[#780000]/60 font-black uppercase tracking-widest">Pending Polls</span>
+            </div>
+            <div className="flex items-center gap-3">
               <span className="w-3 h-3 rounded-full bg-[#3B82F6] shadow-sm"></span>
-              <span className="text-[10px] text-[#780000]/60 font-black uppercase tracking-widest">Meetings</span>
+              <span className="text-[10px] text-[#780000]/60 font-black uppercase tracking-widest">Google Tasks</span>
             </div>
           </div>
         </div>
