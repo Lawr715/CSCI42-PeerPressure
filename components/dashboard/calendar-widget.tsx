@@ -51,20 +51,21 @@ export function CalendarWidget() {
         </Link>
       </div>
       
-      <div className="flex-1 overflow-hidden relative dashboard-calendar-mini min-h-[250px]">
+      <div className="flex-1 relative dashboard-calendar-mini">
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
           initialView="dayGridMonth"
           events={events}
           allDaySlot={true}          
+          displayEventTime={false}
           displayEventEnd={false}     
           headerToolbar={{
             left: "prev,next title",
             center: "",
             right: "dayGridMonth,timeGridWeek", 
           }}
-          height="100%"
-          dayMaxEvents={3}
+          height="auto"
+          dayMaxEvents={false}
           stickyHeaderDates={true}
         />
 
@@ -143,9 +144,9 @@ export function CalendarWidget() {
 
           .dashboard-calendar-mini .fc .fc-daygrid-day-number {
             font-weight: 900;
-            padding: 8px 10px !important;
+            padding: 12px 14px !important;
             opacity: 0.8;
-            font-size: 0.9rem;
+            font-size: 1rem;
           }
 
           .dashboard-calendar-mini .fc .fc-day-today {
@@ -155,52 +156,88 @@ export function CalendarWidget() {
           .dashboard-calendar-mini .fc .fc-day-today .fc-daygrid-day-number {
             background: #780000;
             color: #E9DABB;
-            border-radius: 8px;
+            border-radius: 10px;
             opacity: 1;
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             display: flex !important;
             align-items: center;
             justify-content: center;
-            margin: 6px auto;
+            margin: 8px auto;
             padding: 0 !important;
             box-shadow: 0 4px 10px rgba(120, 0, 0, 0.2);
           }
 
-          /* Event Dots (Removing text to fix cutoff, keeping inline background) */
-          .dashboard-calendar-mini .fc-daygrid-event-harness {
-            display: inline-flex !important;
-            margin: 0 2px !important;
+          /* Event Dots Clustering (Heatmap Style) */
+          .dashboard-calendar-mini .fc-daygrid-day-events {
+            display: flex !important;
+            justify-content: center !important;
+            flex-wrap: wrap !important;
+            gap: 4px !important;
+            padding: 4px 8px 12px !important;
+            max-height: 40px;
+            overflow: hidden;
           }
 
-          .dashboard-calendar-mini .fc-daygrid-day-events {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-bottom: 4px !important;
+          .dashboard-calendar-mini .fc-daygrid-event-harness {
+            margin: 0 !important;
+            display: block !important;
           }
 
           .dashboard-calendar-mini .fc-event {
             border: none !important;
             border-radius: 100px !important;
-            width: 6px !important;
-            height: 6px !important;
+            width: 7px !important;
+            height: 7px !important;
             padding: 0 !important;
             min-height: 0 !important;
             display: block !important;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+          }
+          
+          .dashboard-calendar-mini .fc-event:hover {
+            transform: scale(1.4);
+            z-index: 10;
           }
 
-          .dashboard-calendar-mini .fc-event-main {
+          /* Hide 'more' link if it appears, or style it as a tiny dot */
+          .dashboard-calendar-mini .fc-daygrid-more-link {
+            font-size: 7px !important;
+            font-weight: 900 !important;
+            color: #780000 !important;
+            opacity: 0.5;
+            text-transform: uppercase;
+            margin-top: -2px;
+          }
+
+          /* Nuke all internal labels (times/titles) within the grid cells */
+          .dashboard-calendar-mini .fc-event-main,
+          .dashboard-calendar-mini .fc-event-time,
+          .dashboard-calendar-mini .fc-event-title {
             display: none !important;
           }
 
+          /* Force no scrolling and ensure full month visibility */
           .dashboard-calendar-mini .fc-scroller {
+            overflow: hidden !important;
+            height: auto !important;
             scrollbar-width: none;
             -ms-overflow-style: none;
           }
           .dashboard-calendar-mini .fc-scroller::-webkit-scrollbar {
             display: none;
+          }
+          
+          .dashboard-calendar-mini .fc-daygrid-body,
+          .dashboard-calendar-mini .fc-scrollgrid-sync-table {
+            height: auto !important;
+          }
+
+          .dashboard-calendar-mini .fc-daygrid-day-frame {
+            min-height: 70px !important;
+            display: flex;
+            flex-direction: column;
           }
         `}</style>
       </div>
