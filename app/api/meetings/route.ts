@@ -24,7 +24,7 @@ export async function POST(request: Request) {
                 endDate: new Date(data.endDate),
                 startTime: data.startTime || "09:00:00",
                 endTime: data.endTime || "17:00:00",
-                startedById: data.startedById, // Needs an actual User ID from session in production
+                startedById: data.startedById, 
                 ...(data.taskId ? { taskId: parseInt(data.taskId) } : {})
             },
         });
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     }
 }
 
-// Get all meetings (optional utility)
+// Get all meetings
 export async function GET() {
     try {
         const meetings = await getDB().meetingSchedule.findMany({
@@ -47,6 +47,7 @@ export async function GET() {
         });
         return NextResponse.json(meetings);
     } catch (error) {
+        console.error("Error fetching meetings:", error);
         return NextResponse.json(
             { error: "Failed to fetch meetings" },
             { status: 500 }

@@ -1,11 +1,21 @@
 import { NextResponse } from "next/server";
 import { getDB } from "@/lib/prisma";
+import { getAuth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
     try {
-        const userId = "user-1";
+        const session = await getAuth().api.getSession({
+            headers: await headers()
+        });
+
+        if (!session || !session.user) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        const userId = session.user.id;
 
         const today = new Date();
         const currentDayOfWeek = today.getDay();
@@ -57,7 +67,7 @@ export async function GET(request: Request) {
         });
 
         let morning = 0, afternoon = 0, evening = 0;
-        pomodoros.forEach((p: { createdAt: Date }) => {
+        pomodoros.forEach((p: any) => {
             const hour = p.createdAt.getHours();
             if (hour >= 5 && hour < 12) morning++;
             else if (hour >= 12 && hour < 17) afternoon++;
@@ -81,23 +91,9 @@ export async function GET(request: Request) {
             suggestions
         });
     } catch (error) {
-        // Fallback: return hardcoded sample data if Prisma/DB is unavailable
-        console.error("Prisma unavailable, returning sample data:", error);
+        console.error("Error generating weekly report:", error);
         return NextResponse.json({
-            streak: 12,
-            completedTasks: [
-                { id: 1, taskName: "Finalize Brand Guidelines" },
-                { id: 2, taskName: "Website UI Audit" },
-                { id: 3, taskName: "Update Project README" },
-                { id: 4, taskName: "Fix Login Page Styling" },
-                { id: 5, taskName: "Database Schema Review" },
-            ],
-            delayedTasks: [
-                { id: 6, taskName: "Prepare Investor Presentation", hardDeadline: "2026-03-15T00:00:00.000Z" },
-                { id: 7, taskName: "API Integration Testing", hardDeadline: "2026-03-14T00:00:00.000Z" },
-            ],
-            commonTime: "Afternoon",
-            suggestions: "You have 2 overdue tasks. Consider dedicating your next Focus Session to 'Prepare Investor Presentation' — it has the nearest deadline."
-        });
+            error: "Failed to generate weekly report"
+        }, { status: 500 });
     }
 }

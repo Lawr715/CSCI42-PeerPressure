@@ -77,7 +77,7 @@ const CreateTaskForm = () => {
             name="taskName"
             required
             placeholder="e.g., Finish Project Proposal"
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+            className="text-black mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
             value={formData.taskName}
             onChange={handleChange}
           />
@@ -89,7 +89,7 @@ const CreateTaskForm = () => {
           <textarea
             name="taskDescription"
             rows={3}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+            className="text-black mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
             value={formData.taskDescription}
             onChange={handleChange}
           />
@@ -101,7 +101,7 @@ const CreateTaskForm = () => {
             <label className="block text-sm font-medium text-gray-700">Status</label>
             <select
               name="status"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+              className="text-gray-700 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
               value={formData.status}
               onChange={handleChange}
             >
@@ -118,7 +118,7 @@ const CreateTaskForm = () => {
               type="number"
               name="repetition"
               min="1"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+              className="text-black mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
               value={formData.repetition}
               onChange={handleChange}
             />
@@ -132,7 +132,7 @@ const CreateTaskForm = () => {
             <input
               type="date"
               name="softDeadline"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+              className="text-black mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
               value={formData.softDeadline}
               onChange={handleChange}
             />
@@ -145,7 +145,7 @@ const CreateTaskForm = () => {
               type="date"
               name="hardDeadline"
               required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+              className="text-black mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
               value={formData.hardDeadline}
               onChange={handleChange}
             />
@@ -156,7 +156,7 @@ const CreateTaskForm = () => {
           <label className="block text-sm font-medium text-gray-700">Category</label>
           <select
             name="categoryId"
-            className="mt-1 block w-full rounded-md border-gray-300 p-2 border"
+            className="text-black mt-1 block w-full rounded-md border-gray-300 p-2 border"
             onChange={handleChange}
           >
             <option value="">No Category</option>
@@ -164,13 +164,13 @@ const CreateTaskForm = () => {
               <option key={cat.id} value={cat.id}>{cat.categoryName}</option>
             ))}
           </select>
-          <Link href="/categories/create" className="text-xs text-blue-600 hover:underline">+ Create New Category</Link>
+          <Link href="/categories/create" className="text-xs text-[#B50D1A] hover:underline">+ Create New Category</Link>
           </div>
         </div>
 
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200 font-semibold"
+          className="w-full bg-[#780000] text-white py-2 px-4 rounded-md hover:bg-[#B50D1A] transition duration-200 font-semibold"
         >
           Create Task
         </button>

@@ -53,13 +53,11 @@ export async function POST(
 
         const data = await request.json();
         const { userId, availabilities } = data;
-        // availabilities expecting: { date: string, timeSlot: string, status: string }[]
 
         if (!userId || !Array.isArray(availabilities)) {
             return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
         }
 
-        // A simple way is to upsert each availability slot
         const results = [];
         for (const slot of availabilities) {
             const result = await getDB().meetingAvailability.upsert({

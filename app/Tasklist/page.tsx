@@ -4,13 +4,12 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/navbar";
 
-
 type ViewMode = 'list' | 'kanban';
 
 interface Task {
   id: number;
   taskName: string;
-  taskDescription: string;
+  taskDescription: string | null;
   status: 'BACKLOG' | 'IN_PROGRESS' | 'FOR_REVIEW' | 'DONE';
   softDeadline: string | null;
   hardDeadline: string;
@@ -53,42 +52,21 @@ export default function TaskList() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null); // State for the popup
   const [isUpdating, setIsUpdating] = useState(false);
-  
 
   useEffect(() => {
-  async function fetchTasks() {
-    try {
-      const taskRes = await fetch('/api/tasks');
-      const dbTasks = await taskRes.json();
-
-      // 2. Fetch Google Calendar events
-      const calRes = await fetch('/api/calendar');
-      const googleEvents = await calRes.json();
-      const googleTasks = googleEvents.map((event: any) => ({
-        id: `g-${event.id}`, // avoid ID conflicts
-        taskName: event.title,
-        taskDescription: "Google Calendar Event",
-        status: "IN_PROGRESS",
-        softDeadline: null,
-        hardDeadline: event.start,
-        repetition: 0,
-        category: { categoryName: "Google Calendar" }
-      }));
-      //Merge 
-      setTasks([
-        ...dbTasks,
-        ...googleTasks
-      ]);
-
-    } catch (error) {
-      console.error("Failed to fetch tasks:", error);
-    } finally {
-      setIsLoading(false);
+    async function fetchTasks() {
+      try {
+        const response = await fetch('/api/tasks');
+        const data = await response.json();
+        if (Array.isArray(data)) setTasks(data);
+      } catch (error) {
+        console.error("Failed to fetch tasks:", error);
+      } finally {
+        setIsLoading(false);
+      }
     }
-  }
-
-  fetchTasks();
-}, []);
+    fetchTasks();
+  }, []);
 
   const updateTaskStatus = async (taskId: number, newStatus: string) => {
     setIsUpdating(true);
@@ -196,19 +174,42 @@ export default function TaskList() {
           {view === 'kanban' && !isLoading && (
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               {['BACKLOG', 'IN_PROGRESS', 'FOR_REVIEW', 'DONE'].map((statusKey) => (
-                <div key={statusKey} className="bg-gray-100/50 rounded-2xl p-4 border border-dashed border-gray-200">
+                <div 
+                  key={statusKey} 
+                  className="bg-gray-100/50 rounded-2xl p-4 border border-dashed border-gray-200 transition-colors"
+                  // --- DRAG EVENTS FOR THE COLUMN ---
+                  onDragOver={(e) => e.preventDefault()} // Required to allow dropping
+                  onDrop={(e) => {
+                    const taskId = e.dataTransfer.getData("taskId");
+                    if (taskId) updateTaskStatus(Number(taskId), statusKey);
+                  }}
+                >
                   <div className="flex items-center justify-between mb-4 px-1">
                     <h3 className="font-black text-[11px] text-gray-500 uppercase tracking-widest">{statusKey.replace('_', ' ')}</h3>
                     <span className="text-[10px] font-bold text-white bg-gray-400 px-2 py-0.5 rounded-full">
                       {tasks.filter(t => t.status === statusKey).length}
                     </span>
                   </div>
-                  <div className="space-y-3">
+
+                  <div className="space-y-3 min-h-[150px]">
                     {tasks.filter(t => t.status === statusKey).length === 0 ? (
-                      <div className="py-10 text-center border-2 border-dashed border-gray-200 rounded-xl text-[10px] text-gray-400 font-bold uppercase tracking-widest">Empty</div>
+                      <div className="py-10 text-center border-2 border-dashed border-gray-200 rounded-xl text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                        Drop here
+                      </div>
                     ) : (
                       tasks.filter(t => t.status === statusKey).map((task) => (
-                        <div key={task.id} className="p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-[#780000] transition-colors cursor-pointer group">
+                        <div 
+                          key={task.id} 
+                          draggable
+                          onDragStart={(e) => {
+                            e.dataTransfer.setData("taskId", task.id.toString());
+                            e.currentTarget.style.opacity = '0.5';
+                          }}
+                          onDragEnd={(e) => {
+                            e.currentTarget.style.opacity = '1';
+                          }}
+                          className="p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-[#780000] transition-all cursor-grab active:cursor-grabbing group"
+                        >
                           <p className="font-bold text-gray-800 text-sm mb-3 group-hover:text-[#780000]">{task.taskName}</p>
                           <MiniProgressBar status={task.status} />
                           <div className="mt-3 flex justify-between items-center">
