@@ -98,21 +98,21 @@ export default function DashboardPage() {
           <div className="absolute right-0 top-0 w-80 h-80 bg-white opacity-5 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl pointer-events-none"></div>
         </div>
 
-        {/* Main 3-Part Widget Grid */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        {/* Main 3-Part Widget Grid - 5 Column system for better balance */}
+        <div className="grid grid-cols-1 xl:grid-cols-5 gap-10">
           
-          {/* Column 1: Tasklist & Kanban (Takes up 2 cols on large screens) */}
-          <div className="xl:col-span-2 min-h-[450px]">
+          {/* Column 1: Tasklist & Kanban (Takes up 3/5 cols) */}
+          <div className="xl:col-span-3 min-h-[500px]">
             <TasklistWidget tasks={tasks} />
           </div>
 
-          {/* Column 2: Productivity Tools (Calendar & Pomodoro) */}
-          <div className="xl:col-span-1 flex flex-col gap-8">
-            <div className="h-64">
+          {/* Column 2: Productivity Tools (Calendar & Pomodoro - Takes up 2/5 cols) */}
+          <div className="xl:col-span-2 flex flex-col gap-10">
+            <div className="h-72">
                <PomodoroWidget />
             </div>
 
-            <div className="flex-1 min-h-[350px]">
+            <div className="flex-1 min-h-[500px]">
                <CalendarWidget />
             </div>
           </div>

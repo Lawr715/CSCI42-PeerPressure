@@ -40,14 +40,14 @@ export function CalendarWidget() {
   if (!mounted) return null;
 
   return (
-    <div className="w-full h-full bg-white/20 backdrop-blur-2xl text-[#780000] p-6 rounded-[2.5rem] shadow-2xl border border-white/40 flex flex-col group transition-all duration-500 hover:bg-white/30">
-      <div className="flex justify-between items-start mb-4">
+    <div className="w-full h-full bg-white/20 backdrop-blur-2xl text-[#780000] p-8 rounded-[3rem] shadow-2xl border border-white/40 flex flex-col group transition-all duration-500 hover:bg-white/30">
+      <div className="flex justify-between items-start mb-6">
         <div>
-          <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-[#780000] opacity-100 mb-1">Calendar Overview</h2>
-          <div className="w-8 h-[2px] bg-[#780000]/20 rounded-full"></div>
+          <h2 className="text-[12px] font-black uppercase tracking-[0.5em] text-[#780000] opacity-100 mb-2">Calendar Overview</h2>
+          <div className="w-12 h-[3px] bg-[#780000]/20 rounded-full"></div>
         </div>
-        <Link href="/Calendar" className="text-[10px] font-black tracking-[0.2em] opacity-40 hover:opacity-100 hover:text-[#780000] transition-all uppercase flex items-center gap-2">
-          Full Room ↗
+        <Link href="/Calendar" className="text-[10px] font-black tracking-[0.3em] opacity-40 hover:opacity-100 hover:text-[#780000] transition-all uppercase flex items-center gap-3">
+          Sovereign View ↗
         </Link>
       </div>
       
@@ -65,7 +65,7 @@ export function CalendarWidget() {
             right: "dayGridMonth,timeGridWeek", 
           }}
           height="100%"
-          dayMaxEvents={1}
+          dayMaxEvents={2}
           stickyHeaderDates={true}
         />
 
@@ -77,97 +77,103 @@ export function CalendarWidget() {
             --fc-button-active-bg-color: #780000;
             --fc-today-bg-color: rgba(120, 0, 0, 0.03);
             font-family: inherit;
-            font-size: 0.65rem;
+            font-size: 0.75rem;
           }
 
           .dashboard-calendar-mini .fc .fc-toolbar {
-            margin-bottom: 1rem !important;
+            margin-bottom: 1.5rem !important;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 1rem;
           }
 
           .dashboard-calendar-mini .fc .fc-toolbar-title {
-            font-size: 1.1rem !important;
+            font-size: 1.5rem !important;
             font-weight: 900 !important;
             text-transform: uppercase;
-            letter-spacing: -0.02em;
+            letter-spacing: -0.05em;
             color: #780000;
+            padding: 0 0.5rem;
           }
 
           .dashboard-calendar-mini .fc .fc-button {
-            padding: 0.4rem 0.8rem !important;
-            border-radius: 12px !important;
+            padding: 0.6rem 1.2rem !important;
+            border-radius: 16px !important;
             font-weight: 900 !important;
-            font-size: 0.6rem !important;
+            font-size: 0.7rem !important;
             text-transform: uppercase !important;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.15em;
             border: 1px solid rgba(120, 0, 0, 0.1) !important;
             background: transparent !important;
             color: #780000 !important;
-            transition: all 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: none !important;
           }
 
           .dashboard-calendar-mini .fc .fc-button-primary:not(:disabled).fc-button-active {
             background-color: #780000 !important;
             color: #E9DABB !important;
             border-color: #780000 !important;
+            box-shadow: 0 4px 12px rgba(120, 0, 0, 0.2) !important;
           }
 
           .dashboard-calendar-mini .fc .fc-button:hover {
-            background: rgba(120, 0, 0, 0.05) !important;
+            background: rgba(120, 0, 0, 0.08) !important;
+            transform: translateY(-1px);
           }
 
           .dashboard-calendar-mini .fc-theme-standard td, 
           .dashboard-calendar-mini .fc-theme-standard th {
-            border: 0.5px solid rgba(120, 0, 0, 0.08) !important;
+            border: 0.5px solid rgba(120, 0, 0, 0.06) !important;
           }
 
           .dashboard-calendar-mini .fc .fc-col-header-cell-cushion {
             font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
-            opacity: 0.3;
-            padding: 8px 0 !important;
-            font-size: 0.55rem;
+            letter-spacing: 0.2em;
+            opacity: 0.4;
+            padding: 12px 0 !important;
+            font-size: 0.65rem;
           }
 
           .dashboard-calendar-mini .fc .fc-daygrid-day-number {
             font-weight: 900;
-            padding: 6px 8px !important;
+            padding: 10px 12px !important;
             opacity: 0.8;
+            font-size: 0.9rem;
           }
 
           .dashboard-calendar-mini .fc .fc-day-today {
-            background-color: rgba(120, 0, 0, 0.05) !important;
+            background-color: rgba(120, 0, 0, 0.04) !important;
           }
 
           .dashboard-calendar-mini .fc .fc-day-today .fc-daygrid-day-number {
             background: #780000;
             color: #E9DABB;
-            border-radius: 6px;
+            border-radius: 10px;
             opacity: 1;
+            box-shadow: 0 4px 10px rgba(120, 0, 0, 0.2);
           }
 
           .dashboard-calendar-mini .fc-event {
             border: none !important;
-            background: transparent !important;
-            padding: 0 !important;
-            margin: 0 !important;
-          }
-
-          .dashboard-calendar-mini .fc-event-main {
-            padding: 2px 4px !important;
-            font-weight: 800 !important;
-            font-size: 0.55rem !important;
-          }
-
-          /* Indicators for small grid */
-          .dashboard-calendar-mini .fc-daygrid-event-harness {
+            background: #780000 !important;
+            border-radius: 6px !important;
             margin: 1px 2px !important;
           }
 
-          /* Hide scrollbars but allow functional scroll */
+          .dashboard-calendar-mini .fc-event-main {
+            padding: 3px 6px !important;
+            font-weight: 800 !important;
+            font-size: 0.6rem !important;
+            color: #E9DABB !important;
+          }
+
+          .dashboard-calendar-mini .fc-daygrid-event-harness {
+            margin: 2px 4px !important;
+          }
+
           .dashboard-calendar-mini .fc-scroller {
             scrollbar-width: none;
             -ms-overflow-style: none;
