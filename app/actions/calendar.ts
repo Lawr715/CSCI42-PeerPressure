@@ -4,6 +4,15 @@ import { getAuth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { getDB } from "@/lib/prisma";
 
+interface CalendarEvent {
+    id: string;
+    title: string;
+    start: string;
+    end?: string;
+    allDay: boolean;
+    color: string;
+}
+
 export async function getCalendarEvents() {
     const session = await getAuth().api.getSession({
         headers: await headers(),
@@ -15,7 +24,7 @@ export async function getCalendarEvents() {
 
     const userId = session.user.id;
     const db = getDB();
-    const allEvents: any[] = [];
+    const allEvents: CalendarEvent[] = [];
 
     // --- 1. Attempt to Fetch Google Events ---
     try {
@@ -64,7 +73,7 @@ export async function getCalendarEvents() {
             }
         });
 
-        const mappedMeetings = localMeetings.map(m => ({
+        const mappedMeetings = localMeetings.map((m: any) => ({
             id: `meeting-${m.id}`,
             title: `🤝 ${m.meetingName}`,
             start: `${new Date(m.startDate).toISOString().split('T')[0]}T${m.startTime}`,
