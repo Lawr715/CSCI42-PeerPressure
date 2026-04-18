@@ -2,11 +2,12 @@
 
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "@/lib/auth-client";
 import { Navbar } from "@/components/navbar";
 
 // Helper to generate 30-minute intervals between start and end time
 function generateTimeSlots(startTime: string, endTime: string) {
-    const slots = [];
+    const slots: string[] = [];
     let current = new Date(`1970-01-01T${startTime}`);
     const end = new Date(`1970-01-01T${endTime}`);
 
@@ -20,7 +21,7 @@ function generateTimeSlots(startTime: string, endTime: string) {
 
 // Helper to get array of dates between start and end
 function getDatesInRange(startDate: Date, endDate: Date) {
-    const dates = [];
+    const dates: Date[] = [];
     let current = new Date(startDate);
     while (current <= endDate) {
         dates.push(new Date(current));
@@ -29,14 +30,22 @@ function getDatesInRange(startDate: Date, endDate: Date) {
     return dates;
 }
 
+interface GroupMemberUser {
+    id: string;
+    name: string;
+    image: string | null;
+}
+
 export default function MeetingDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter();
     const { id: meetingId } = use(params);
-    const currentUserId = "user-1";
+    const { data: session } = useSession();
+    const currentUserId = session?.user?.id || "";
 
     const [meeting, setMeeting] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [deleting, setDeleting] = useState(false);
     const [availabilities, setAvailabilities] = useState<Record<string, string>>({});
 
     useEffect(() => {
@@ -63,14 +72,15 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
             }
         }
 
-        if (meetingId) fetchMeeting();
+        if (meetingId && currentUserId) fetchMeeting();
     }, [meetingId, currentUserId]);
 
-    if (loading) return <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center text-gray-500 font-medium">Loading meeting schedule...</div>;
-    if (!meeting) return <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center text-red-500 font-medium">Meeting not found</div>;
+    if (loading) return <><Navbar /><div className="min-h-screen bg-[#E9DABB] flex items-center justify-center text-[#780000]/60 font-black text-sm uppercase tracking-widest animate-pulse">Loading meeting...</div></>;
+    if (!meeting) return <><Navbar /><div className="min-h-screen bg-[#E9DABB] flex items-center justify-center text-red-500 font-medium">Meeting not found</div></>;
 
     const dates = getDatesInRange(new Date(meeting.startDate), new Date(meeting.endDate));
     const timeSlots = generateTimeSlots(meeting.startTime, meeting.endTime);
+    const groupMembers: GroupMemberUser[] = meeting.group?.members?.map((m: any) => m.user) || [];
 
     const toggleSlot = (dateStr: string, timeStr: string) => {
         const key = `${dateStr}_${timeStr}`;
@@ -94,7 +104,6 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    userId: currentUserId,
                     availabilities: payloadAvailabilities
                 })
             });
@@ -106,6 +115,22 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
             alert("Error saving availabilities.");
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleDeleteMeeting = async () => {
+        if (!confirm("Are you sure you want to delete this meeting? This cannot be undone.")) return;
+        setDeleting(true);
+
+        try {
+            const res = await fetch(`/api/meetings/${meetingId}`, { method: "DELETE" });
+            if (!res.ok) throw new Error("Failed to delete meeting");
+            router.push("/meetings/create");
+        } catch (error) {
+            console.error(error);
+            alert("Failed to delete meeting.");
+        } finally {
+            setDeleting(false);
         }
     };
 
@@ -127,17 +152,51 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
                             <span className="bg-[#780000] px-6 py-2 rounded-2xl text-[10px] text-[#E9DABB] font-black uppercase tracking-widest shadow-xl">
                                 🕐 {meeting.startTime.slice(0, 5)} – {meeting.endTime.slice(0, 5)}
                             </span>
+                            {meeting.group && (
+                                <span className="bg-white/40 backdrop-blur-md border-2 border-[#780000]/10 px-6 py-2 rounded-2xl text-[10px] font-black text-[#780000] uppercase tracking-widest shadow-xl">
+                                    👥 {meeting.group.name}
+                                </span>
+                            )}
                         </div>
                     </div>
-                    <div className="flex gap-4">
-                        <button className="px-6 py-3 bg-[#780000]/5 border-2 border-[#780000]/10 text-[#780000] font-black rounded-2xl hover:bg-[#780000]/10 text-[10px] uppercase tracking-widest transition-all shadow-lg">
-                            Extract Tasks
-                        </button>
-                        <button className="px-6 py-3 bg-white/40 border-2 border-[#780000]/10 text-[#780000] font-black rounded-2xl hover:bg-white/60 text-[10px] uppercase tracking-widest transition-all shadow-lg">
-                            External Sync
-                        </button>
-                    </div>
+                    <button
+                        onClick={handleDeleteMeeting}
+                        disabled={deleting}
+                        className="px-6 py-3 bg-red-600/10 border-2 border-red-600/20 text-red-600 font-black rounded-2xl hover:bg-red-600 hover:text-white hover:border-red-600 text-[10px] uppercase tracking-widest transition-all disabled:opacity-50"
+                    >
+                        {deleting ? "Deleting..." : "Delete Meeting"}
+                    </button>
                 </div>
+
+                {/* Group Members Row */}
+                {groupMembers.length > 0 && (
+                    <div className="bg-white/30 backdrop-blur-xl rounded-[2rem] shadow-xl border border-white/40 p-6">
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#780000]/40 mb-4">Attendees</p>
+                        <div className="flex flex-wrap gap-3">
+                            {groupMembers.map((member: GroupMemberUser) => {
+                                const initials = member.name.split(" ").map((n: string) => n[0]).join("").toUpperCase();
+                                const hasResponded = meeting.availabilities?.some((a: any) => a.userId === member.id);
+                                return (
+                                    <div key={member.id} className="flex items-center gap-2 bg-white/50 rounded-xl px-4 py-2 border border-[#780000]/5">
+                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-black ${
+                                            member.id === currentUserId 
+                                                ? "bg-[#780000] text-[#E9DABB]" 
+                                                : "bg-[#780000]/10 text-[#780000]"
+                                        }`}>
+                                            {initials}
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-black">{member.name}</p>
+                                            <p className="text-[9px] font-bold text-[#780000]/40 uppercase">
+                                                {hasResponded ? "✓ Responded" : "Awaiting"}
+                                            </p>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
 
                 {/* Availability Grid Card */}
                 <div className="bg-white/30 backdrop-blur-xl rounded-[3rem] shadow-2xl border border-white/40 overflow-hidden">

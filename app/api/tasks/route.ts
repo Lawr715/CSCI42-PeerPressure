@@ -16,8 +16,24 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { taskName, taskDescription, status, softDeadline, hardDeadline, repetition, categoryId } = body;
+    const { taskName, taskDescription, status, softDeadline, hardDeadline, repetition, categoryId, groupId } = body;
     
+    // If groupId is provided, verify the user is a member of that group
+    if (groupId) {
+      const membership = await getDB().groupMember.findUnique({
+        where: {
+          userId_groupId: {
+            userId: session.user.id,
+            groupId: groupId,
+          },
+        },
+      });
+
+      if (!membership) {
+        return NextResponse.json({ error: "You are not a member of this group" }, { status: 403 });
+      }
+    }
+
     const newTask = await getDB().task.create({
       data: {
         taskName,
@@ -29,7 +45,8 @@ export async function POST(request: Request) {
         categoryId: categoryId ? Number(categoryId): null, 
         assignedUsers: {
           connect: { id: session.user.id }
-        }
+        },
+        ...(groupId ? { groupId } : {}),
       },
     });
 
@@ -51,23 +68,37 @@ export async function GET() {
     }
 
     const userId = session.user.id;
+    const db = getDB();
 
-    const tasks = await getDB().task.findMany({
+    // Get user's group IDs
+    const memberships = await db.groupMember.findMany({
+      where: { userId },
+      select: { groupId: true },
+    });
+    const groupIds = memberships.map((m: any) => m.groupId);
+
+    // Fetch personal tasks AND tasks from all groups the user belongs to
+    const tasks = await db.task.findMany({
       where: {
-        assignedUsers: {
-          some: {
-            id: userId,
+        OR: [
+          // Personal tasks assigned to the user
+          {
+            assignedUsers: { some: { id: userId } },
+            groupId: null,
           },
-        },
-        status: {
-          not: 'DONE',
-        },
+          // Group tasks from any group the user is in
+          ...(groupIds.length > 0
+            ? [{ groupId: { in: groupIds } }]
+            : []),
+        ],
+        status: { not: "DONE" as any },
       },
       include: {
         category: true,
+        group: { select: { id: true, name: true } },
       },
       orderBy: {
-        hardDeadline: "asc", // Adopted from tasklist branch
+        hardDeadline: "asc",
       },
     });
 

@@ -3,6 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from "next/link";
 
+interface GroupOption {
+  id: string;
+  name: string;
+}
+
 // Define the Status Enum based on your Prisma Schema
 enum TaskStatus {
   BACKLOG = "BACKLOG",
@@ -24,8 +29,13 @@ const CreateTaskForm = () => {
   const router = useRouter();
 
   const [categories, setCategories] = useState<{id: number, categoryName: string}[]>([]);
-    useEffect(() => {
+  const [groups, setGroups] = useState<GroupOption[]>([]);
+
+  useEffect(() => {
     fetch('/api/categories').then(res => res.json()).then(setCategories);
+    fetch('/api/groups').then(res => res.json()).then((data: any[]) => {
+      setGroups(data.map(g => ({ id: g.id, name: g.name })));
+    }).catch(() => {});
   }, []);
 
   const [formData, setFormData] = useState<TaskFormData>({
@@ -46,7 +56,10 @@ const CreateTaskForm = () => {
       const response = await fetch('/api/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          groupId: (formData as any).groupId || null,
+        }),
       });
 
       if (response.ok) {
@@ -94,6 +107,24 @@ const CreateTaskForm = () => {
             onChange={handleChange}
           />
         </div>
+
+        {/* Group Scope */}
+        {groups.length > 0 && (
+          <div className="space-y-1">
+            <label className="block text-sm font-bold text-[#780000]/80 px-1">Scope</label>
+            <select
+              name="groupId"
+              className="w-full p-3 bg-white/70 border-2 border-[#780000]/20 rounded-xl focus:border-[#780000] focus:ring-4 focus:ring-[#780000]/5 outline-none transition-all text-[#780000] font-black appearance-none cursor-pointer"
+              onChange={handleChange}
+            >
+              <option value="">Personal Task</option>
+              {groups.map(g => (
+                <option key={g.id} value={g.id}>{g.name}</option>
+              ))}
+            </select>
+            <p className="text-[10px] font-bold text-[#780000]/40 px-1 mt-1">Personal tasks are only visible to you. Group tasks are visible to all group members.</p>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Status */}

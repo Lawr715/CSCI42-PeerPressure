@@ -15,6 +15,8 @@ interface Task {
   hardDeadline: string;
   repetition: number;
   category?: { categoryName: string };
+  group?: { id: string; name: string } | null;
+  groupId?: string | null;
 }
 
 // Progress Bar helper specifically for Kanban visualization
@@ -50,8 +52,9 @@ export default function TaskList() {
   const [view, setView] = useState<ViewMode>('list');
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null); // State for the popup
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [groupFilter, setGroupFilter] = useState<string>("all"); // "all", "personal", or a groupId
 
   useEffect(() => {
     async function fetchTasks() {
@@ -104,7 +107,7 @@ export default function TaskList() {
         <div className="max-w-7xl mx-auto">
           
           {/* Header */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-4">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
             <div>
               <h1 className="text-4xl font-black text-[#780000] tracking-tighter">Task Manager</h1>
               <p className="text-[#780000]/60 font-bold italic">Sovereign Focus & Productivity</p>
@@ -133,6 +136,36 @@ export default function TaskList() {
             </div>
           </div>
 
+          {/* Group Filter Tabs */}
+          {(() => {
+            const groupNames = Array.from(new Set(tasks.filter(t => t.group).map(t => JSON.stringify({ id: t.group!.id, name: t.group!.name })))).map(s => JSON.parse(s));
+            return groupNames.length > 0 ? (
+              <div className="flex flex-wrap gap-2 mb-8">
+                <button
+                  onClick={() => setGroupFilter("all")}
+                  className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${groupFilter === "all" ? 'bg-[#780000] text-[#E9DABB] border-[#780000]' : 'bg-white/30 text-[#780000]/40 border-transparent hover:text-[#780000]'}`}
+                >
+                  All Tasks
+                </button>
+                <button
+                  onClick={() => setGroupFilter("personal")}
+                  className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${groupFilter === "personal" ? 'bg-[#780000] text-[#E9DABB] border-[#780000]' : 'bg-white/30 text-[#780000]/40 border-transparent hover:text-[#780000]'}`}
+                >
+                  Personal
+                </button>
+                {groupNames.map((g: any) => (
+                  <button
+                    key={g.id}
+                    onClick={() => setGroupFilter(g.id)}
+                    className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${groupFilter === g.id ? 'bg-[#780000] text-[#E9DABB] border-[#780000]' : 'bg-white/30 text-[#780000]/40 border-transparent hover:text-[#780000]'}`}
+                  >
+                    {g.name}
+                  </button>
+                ))}
+              </div>
+            ) : null;
+          })()}
+
           {/* List View */}
           {view === 'list' && (
             <div className="bg-white/30 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/40 overflow-hidden">
@@ -147,13 +180,20 @@ export default function TaskList() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#780000]/5">
-                {tasks.map((task) => (
+                {tasks.filter(t => {
+                  if (groupFilter === "all") return true;
+                  if (groupFilter === "personal") return !t.groupId;
+                  return t.groupId === groupFilter;
+                }).map((task) => (
                   <tr key={task.id} className="hover:bg-[#780000]/5 transition-colors group">
                     <td 
                       className="p-6 font-bold text-[#780000] cursor-pointer"
                       onClick={() => setSelectedTask(task)}
                     >
                       <span className="hover:underline decoration-2">{task.taskName}</span>
+                      {task.group && (
+                        <span className="ml-2 text-[9px] font-black bg-[#780000]/10 text-[#780000]/60 px-2 py-0.5 rounded-lg uppercase tracking-wider">{task.group.name}</span>
+                      )}
                     </td>
                     <td className="p-6"><StatusBadge status={task.status} /></td>
                         <td className="p-6 text-sm text-[#780000]/60 font-bold">{formatDate(task.softDeadline)}</td>
@@ -191,12 +231,20 @@ export default function TaskList() {
                   </div>
 
                   <div className="space-y-4 min-h-[300px]">
-                    {tasks.filter(t => t.status === statusKey).length === 0 ? (
+                    {tasks.filter(t => t.status === statusKey).filter(t => {
+                      if (groupFilter === "all") return true;
+                      if (groupFilter === "personal") return !t.groupId;
+                      return t.groupId === groupFilter;
+                    }).length === 0 ? (
                       <div className="py-20 text-center border-2 border-dashed border-[#780000]/10 rounded-3xl text-[10px] text-[#780000]/30 font-black uppercase tracking-widest">
                         Ready to Focus
                       </div>
                     ) : (
-                      tasks.filter(t => t.status === statusKey).map((task) => (
+                      tasks.filter(t => t.status === statusKey).filter(t => {
+                        if (groupFilter === "all") return true;
+                        if (groupFilter === "personal") return !t.groupId;
+                        return t.groupId === groupFilter;
+                      }).map((task) => (
                         <div 
                           key={task.id} 
                           draggable
