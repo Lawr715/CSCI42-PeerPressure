@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getDB } from "@/lib/prisma";
 import { getAuth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { generateWeeklySummary } from "@/lib/gemini";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +17,7 @@ export async function GET(request: Request) {
         }
 
         const userId = session.user.id;
+        const userName = session.user.name;
 
         const today = new Date();
         const currentDayOfWeek = today.getDay();
@@ -33,11 +35,10 @@ export async function GET(request: Request) {
             select: { loginStreak: true }
         });
 
+        // 1. Fetch Completed Tasks (Rich Data)
         const completedTasks = await getDB().task.findMany({
             where: {
-                assignedUsers: {
-                    some: { id: userId }
-                },
+                assignedUsers: { some: { id: userId } },
                 status: "DONE",
                 interactions: {
                     some: {
@@ -45,19 +46,21 @@ export async function GET(request: Request) {
                         timestamp: { gte: startOfWeek, lte: endOfWeek }
                     }
                 }
-            }
+            },
+            select: { taskName: true, taskDescription: true }
         });
 
+        // 2. Fetch Delayed Tasks
         const delayedTasks = await getDB().task.findMany({
             where: {
-                assignedUsers: {
-                    some: { id: userId }
-                },
+                assignedUsers: { some: { id: userId } },
                 status: { not: "DONE" },
                 hardDeadline: { lt: new Date() }
-            }
+            },
+            select: { taskName: true, hardDeadline: true }
         });
 
+        // 3. Fetch Pomodoro Windows
         const pomodoros = await getDB().pomodoroInteraction.findMany({
             where: {
                 userId: userId,
@@ -66,6 +69,19 @@ export async function GET(request: Request) {
             select: { createdAt: true }
         });
 
+        // 4. Fetch Peer Meetings
+        const meetings = await getDB().meetingSchedule.findMany({
+            where: {
+                OR: [
+                    { startedById: userId },
+                    { availabilities: { some: { userId } } }
+                ],
+                startDate: { gte: startOfWeek, lte: endOfWeek }
+            },
+            select: { meetingName: true }
+        });
+
+        // Time Analysis
         let morning = 0, afternoon = 0, evening = 0;
         pomodoros.forEach((p: any) => {
             const hour = p.createdAt.getHours();
@@ -74,21 +90,27 @@ export async function GET(request: Request) {
             else evening++;
         });
 
-        let commonTime = "Not enough data";
+        let commonTime = "Undetermined";
         if (morning > afternoon && morning > evening) commonTime = "Morning";
         if (afternoon > morning && afternoon > evening) commonTime = "Afternoon";
         if (evening > morning && evening > afternoon) commonTime = "Evening";
 
-        const suggestions = delayedTasks.length > 0
-            ? `You have ${delayedTasks.length} overdue tasks. Consider dedicating your next Focus Session to the highest priority one.`
-            : "Great job keeping up with your tasks! Take a break or start planning next week.";
+        // AI SYNTHESIS
+        const aiReport = await generateWeeklySummary({
+            userId,
+            userName,
+            completedTasks,
+            delayedTasks,
+            focusTime: commonTime,
+            meetings
+        });
 
         return NextResponse.json({
             streak: user?.loginStreak || 0,
             completedTasks,
             delayedTasks,
             commonTime,
-            suggestions
+            ...aiReport
         });
     } catch (error) {
         console.error("Error generating weekly report:", error);
