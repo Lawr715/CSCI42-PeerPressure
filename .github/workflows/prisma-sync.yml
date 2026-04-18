@@ -19,6 +19,9 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
+      - name: "🕵️‍♂️ Reveal Config (Diagnostic)"
+        run: cat prisma.config.ts
+
       - name: "Install"
         run: |
           npm config set engine-strict false
