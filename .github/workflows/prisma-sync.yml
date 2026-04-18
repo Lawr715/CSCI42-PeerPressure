@@ -1,51 +1,36 @@
-name: 🏛️ Prisma Database Sync
+name: "Prisma Database Sync"
 
 on:
   push:
     branches:
-      - '**'  # 🚀 Fires on ALL branches
-    paths:
-      - 'prisma/schema.prisma'
-      - 'prisma.config.ts'
-      - '.github/workflows/prisma-sync.yml'
+      - '**'
 
 jobs:
   db-sync:
-    name: 🔄 Synchronize Database
+    name: "Sync"
     runs-on: ubuntu-latest
-    
-    # 🛡️ Prevents multiple pushes from clashing on the database
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
-      cancel-in-progress: true
-
     steps:
-      - name: 📥 Checkout Repository
+      - name: "Checkout"
         uses: actions/checkout@v4
 
-      - name: 📦 Setup Node.js
+      - name: "Setup Node"
         uses: actions/setup-node@v4
         with:
-          node-version: '22' 
+          node-version: '22'
           cache: 'npm'
 
-      - name: 🔍 Check Environment
-        run: |
-          node -v
-          npm -v
-
-      - name: 🛠️ Install Dependencies
+      - name: "Install"
         run: |
           npm config set engine-strict false
-          npm install --no-package-lock
+          npm install
 
-      - name: 🏗️ Generate Prisma Client
+      - name: "Generate"
         run: npx prisma generate
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           DIRECT_URL: ${{ secrets.DATABASE_URL }}
 
-      - name: 🚀 Push Schema to Database
+      - name: "Push"
         run: npx prisma db push --accept-data-loss
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
