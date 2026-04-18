@@ -96,7 +96,7 @@ export async function getCalendarEvents() {
             }
         });
 
-        tasksWithDeadlines.forEach(task => {
+        tasksWithDeadlines.forEach((task: any) => {
             if (task.hardDeadline) {
                 allEvents.push({
                     id: `task-hard-${task.id}`,
