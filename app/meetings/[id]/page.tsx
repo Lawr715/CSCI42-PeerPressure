@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, use } from "react";
+import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/navbar";
 
 // Helper to generate 30-minute intervals between start and end time
@@ -29,6 +30,7 @@ function getDatesInRange(startDate: Date, endDate: Date) {
 }
 
 export default function MeetingDetailPage({ params }: { params: Promise<{ id: string }> }) {
+    const router = useRouter();
     const { id: meetingId } = use(params);
     const currentUserId = "user-1";
 
@@ -62,7 +64,7 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
         }
 
         if (meetingId) fetchMeeting();
-    }, [meetingId]);
+    }, [meetingId, currentUserId]);
 
     if (loading) return <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center text-gray-500 font-medium">Loading meeting schedule...</div>;
     if (!meeting) return <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center text-red-500 font-medium">Meeting not found</div>;
@@ -174,7 +176,7 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
                                                     className="p-1.5 border-b border-[#780000]/5 cursor-pointer transition-all duration-300 group"
                                                     onClick={() => toggleSlot(dateStr, timeStr)}
                                                 >
-                                                    <div className={`w-full h-12 rounded-2xl border-2 flex items-center justify-center transition-all duration-300 transform group-active:scale-95
+                                                    <div className={`w-full h-12 rounded-2xl border-2 flex items-center justify-center transition-all duration-300 transform group-active:scale-95 relative
                                                         ${isFree
                                                             ? 'bg-[#780000] border-[#780000] text-[#E9DABB] shadow-lg shadow-[#780000]/20'
                                                             : 'bg-white/40 border-dashed border-[#780000]/10 text-[#780000]/20 hover:border-[#780000]/30 hover:bg-white/60'}`}
@@ -210,11 +212,6 @@ export default function MeetingDetailPage({ params }: { params: Promise<{ id: st
                         {saving ? "Synchronizing..." : "Save Availability"}
                     </button>
                 </div>
-
-            </div>
-        </div>
-        </>
-    );
 
             </div>
         </div>
