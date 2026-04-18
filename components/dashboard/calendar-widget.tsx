@@ -60,8 +60,8 @@ export function CalendarWidget() {
           displayEventEnd={true}     
           eventDisplay="block" 
           headerToolbar={{
-            left: "prev,next",
-            center: "title",
+            left: "prev,next title",
+            center: "",
             right: "dayGridMonth,timeGridWeek", 
           }}
           height="100%"
@@ -81,25 +81,30 @@ export function CalendarWidget() {
           }
 
           .dashboard-calendar-mini .fc .fc-toolbar {
-            margin-bottom: 1.5rem !important;
+            margin-bottom: 2rem !important;
             display: flex;
             align-items: center;
             justify-content: space-between;
+          }
+          
+          .dashboard-calendar-mini .fc .fc-toolbar-chunk {
+            display: flex;
+            align-items: center;
             gap: 1rem;
           }
 
           .dashboard-calendar-mini .fc .fc-toolbar-title {
-            font-size: 1.5rem !important;
+            font-size: 1.4rem !important;
             font-weight: 900 !important;
             text-transform: uppercase;
             letter-spacing: -0.05em;
             color: #780000;
-            padding: 0 0.5rem;
+            padding-left: 0.5rem;
           }
 
           .dashboard-calendar-mini .fc .fc-button {
             padding: 0.6rem 1.2rem !important;
-            border-radius: 16px !important;
+            border-radius: 12px !important;
             font-weight: 900 !important;
             font-size: 0.7rem !important;
             text-transform: uppercase !important;
@@ -139,7 +144,7 @@ export function CalendarWidget() {
 
           .dashboard-calendar-mini .fc .fc-daygrid-day-number {
             font-weight: 900;
-            padding: 10px 12px !important;
+            padding: 8px 10px !important;
             opacity: 0.8;
             font-size: 0.9rem;
           }
@@ -151,8 +156,15 @@ export function CalendarWidget() {
           .dashboard-calendar-mini .fc .fc-day-today .fc-daygrid-day-number {
             background: #780000;
             color: #E9DABB;
-            border-radius: 10px;
+            border-radius: 8px;
             opacity: 1;
+            width: 28px;
+            height: 28px;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            margin: 6px auto;
+            padding: 0 !important;
             box-shadow: 0 4px 10px rgba(120, 0, 0, 0.2);
           }
 
