@@ -1,10 +1,11 @@
 import "dotenv/config";
-import { defineConfig, env } from "prisma/config";
+import { defineConfig } from "prisma/config";
 
 /**
- * 🛠️ Prisma 7 Central Configuration (RESILIENT VERSION)
- * We use a fallback logic: If DIRECT_URL is missing, we use DATABASE_URL.
- * This prevents the 'PrismaConfigEnvError' from crashing the Vercel build.
+ * 🏛️ Prisma 7 Central Configuration (RESILIENT VERSION 2)
+ * We use process.env directly instead of the strict env() helper.
+ * This ensures that if DIRECT_URL is missing in GitHub Actions, 
+ * the build doesn't crash and correctly falls back to DATABASE_URL.
  */
 
 export default defineConfig({
@@ -13,8 +14,7 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    // 🛡️ THE FAILSAFE: Try DIRECT_URL first (for migrations), 
-    // fall back to DATABASE_URL if Vercel variable is missing.
-    url: env("DIRECT_URL") || env("DATABASE_URL"),
+    // 🛡️ THE FAILSAFE: Use process.env to avoid strict 'Cannot resolve' errors
+    url: process.env.DIRECT_URL || process.env.DATABASE_URL || "",
   },
 });
